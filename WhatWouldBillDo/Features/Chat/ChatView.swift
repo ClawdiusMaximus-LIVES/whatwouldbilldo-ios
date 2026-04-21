@@ -33,7 +33,18 @@ struct ChatView: View {
             if viewModel == nil {
                 viewModel = ChatViewModel(modelContext: modelContext, appState: appState)
             }
+            consumePendingPromptIfAny()
         }
+        .onChange(of: appState.pendingChatPrompt) { _, _ in
+            consumePendingPromptIfAny()
+        }
+    }
+
+    private func consumePendingPromptIfAny() {
+        guard let prompt = appState.pendingChatPrompt,
+              let vm = viewModel else { return }
+        vm.inputText = prompt
+        appState.pendingChatPrompt = nil
     }
 }
 

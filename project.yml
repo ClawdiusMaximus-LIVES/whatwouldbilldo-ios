@@ -43,6 +43,40 @@ targets:
         com.apple.security.application-groups:
           - group.com.whatwouldbilldo.app.shared
         aps-environment: development
+    dependencies:
+      - target: WhatWouldBillDoWidget
+        embed: true
+        codeSign: true
+
+  WhatWouldBillDoWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: WhatWouldBillDoWidget
+        excludes:
+          - "Info.plist"
+          - "WhatWouldBillDoWidget.entitlements"
+      - path: WhatWouldBillDo/Resources/Assets.xcassets
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.whatwouldbilldo.app.widget
+        PRODUCT_NAME: WhatWouldBillDoWidget
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: WhatWouldBillDoWidget/Info.plist
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+    entitlements:
+      path: WhatWouldBillDoWidget/WhatWouldBillDoWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.whatwouldbilldo.app.shared
+    dependencies:
+      - sdk: SwiftUI.framework
+      - sdk: WidgetKit.framework
 
 schemes:
   WhatWouldBillDo:

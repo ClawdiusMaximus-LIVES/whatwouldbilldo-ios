@@ -38,6 +38,9 @@ final class AppState {
         didSet { UserDefaults.standard.set(needsSelection, forKey: Keys.needsSelection) }
     }
 
+    var selectedTab: Int = 0
+    var pendingChatPrompt: String? = nil
+
     init() {
         let defaults = UserDefaults.standard
         self.isOnboardingComplete = defaults.bool(forKey: Keys.isOnboardingComplete)
