@@ -5,25 +5,19 @@ struct UserMessageView: View {
 
     var body: some View {
         HStack {
-            Spacer(minLength: 40)
+            Spacer(minLength: 56)
             Text(message.content)
-                .font(.system(size: 16))
+                .font(.system(size: 16, design: .serif))
                 .foregroundStyle(Color("LexiconText"))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(
-                    UnevenRoundedRectangle(cornerRadii: .init(topLeading: 16,
-                                                              bottomLeading: 16,
-                                                              bottomTrailing: 16,
-                                                              topTrailing: 4))
-                        .fill(Color("AmberAccent").opacity(0.12))
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color("AmberAccent").opacity(0.15))
                 )
                 .overlay(
-                    UnevenRoundedRectangle(cornerRadii: .init(topLeading: 16,
-                                                              bottomLeading: 16,
-                                                              bottomTrailing: 16,
-                                                              topTrailing: 4))
-                        .stroke(Color("AmberAccent").opacity(0.2), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color("AmberAccent").opacity(0.35), lineWidth: 1)
                 )
                 .accessibilityLabel("You said: \(message.content)")
         }
@@ -31,7 +25,10 @@ struct UserMessageView: View {
 }
 
 #Preview {
-    UserMessageView(message: DisplayMessage(role: "user", content: "I'm struggling with resentment."))
-        .padding()
-        .background(Color("ParchmentBackground"))
+    UserMessageView(message: DisplayMessage(
+        role: "user",
+        content: "I'm struggling with a craving right now. Work was brutal and I just want to drink to make it stop."
+    ))
+    .padding()
+    .background(Color("ParchmentBackground"))
 }

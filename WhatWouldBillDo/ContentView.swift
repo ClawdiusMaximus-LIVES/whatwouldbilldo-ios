@@ -13,19 +13,19 @@ struct ContentView: View {
                     ChatView()
                         .tag(0)
                         .tabItem {
-                            Label("Ask Bill", systemImage: "bubble.left.and.bubble.right.fill")
+                            Label("Ask Bill", systemImage: "bubble.left.and.bubble.right")
                         }
 
                     DailyReflectionView()
                         .tag(1)
                         .tabItem {
-                            Label("Reflection", systemImage: "book.fill")
+                            Label("Reflection", systemImage: "book")
                         }
 
                     SettingsView()
                         .tag(2)
                         .tabItem {
-                            Label("Settings", systemImage: "gear")
+                            Label("Settings", systemImage: "gearshape")
                         }
                 }
                 .tint(Color("AmberAccent"))

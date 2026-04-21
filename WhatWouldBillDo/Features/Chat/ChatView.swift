@@ -19,15 +19,32 @@ struct ChatView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("🕯️")
+                        .font(.system(size: 20))
+                        .accessibilityHidden(true)
+                }
                 ToolbarItem(placement: .principal) {
-                    HStack(spacing: 6) {
-                        Text("🕯️").font(.system(size: 18))
-                        Text("Ask Bill")
-                            .font(.system(.title3, design: .serif))
-                            .foregroundStyle(Color("LexiconText"))
+                    Text("Ask Bill")
+                        .font(.system(.title3, design: .serif, weight: .semibold))
+                        .foregroundStyle(Color("LexiconText"))
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    if !appState.isSubscribed {
+                        let remaining = max(0, 3 - appState.freeConvosUsed)
+                        Text("\(remaining) left")
+                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .foregroundStyle(Color("AmberAccent"))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .overlay(
+                                Capsule().stroke(Color("AmberAccent").opacity(0.6), lineWidth: 1)
+                            )
                     }
                 }
             }
+            .toolbarBackground(Color("ParchmentBackground"), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         }
         .onAppear {
             if viewModel == nil {
@@ -53,24 +70,21 @@ private struct ChatContent: View {
     @Environment(AppState.self) private var appState
 
     private let suggestions = [
-        "I'm struggling with a resentment.",
-        "I'm working on my Step 4.",
-        "I had a craving come up today.",
-        "I relapsed. Now what?"
+        "I'm struggling with a craving right now.",
+        "I had a resentment come up today.",
+        "I'm working through Step 4 and I'm stuck.",
+        "I relapsed. I don't know what to do."
     ]
 
     var body: some View {
         VStack(spacing: 0) {
-            if !appState.isSubscribed {
-                remainingBanner
-            }
+            Divider().background(Color("AgedGold").opacity(0.2))
 
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack(spacing: 16) {
+                    LazyVStack(spacing: 18) {
                         if viewModel.messages.isEmpty && !viewModel.isLoading {
-                            emptyState
-                                .padding(.top, 40)
+                            emptyState.padding(.top, 24)
                         }
 
                         ForEach(viewModel.messages) { message in
@@ -88,8 +102,7 @@ private struct ChatContent: View {
                         }
 
                         if viewModel.isLoading {
-                            BillTypingIndicatorView()
-                                .id("typing")
+                            BillTypingIndicatorView().id("typing")
                         }
 
                         if let err = viewModel.errorMessage {
@@ -99,15 +112,16 @@ private struct ChatContent: View {
                                 .padding(.top, 8)
                         }
                     }
-                    .padding(20)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
                 }
-                .onChange(of: viewModel.messages) { _, _ in
-                    scrollToBottom(proxy: proxy)
-                }
+                .onChange(of: viewModel.messages) { _, _ in scrollToBottom(proxy: proxy) }
                 .onChange(of: viewModel.isLoading) { _, loading in
                     if loading { scrollToBottom(proxy: proxy, anchor: "typing") }
                 }
             }
+
+            Divider().background(Color("AgedGold").opacity(0.2))
 
             MessageInputView(
                 text: $viewModel.inputText,
@@ -119,71 +133,58 @@ private struct ChatContent: View {
             )
         }
         .background(Color("ParchmentBackground").ignoresSafeArea())
-        .sheet(isPresented: $viewModel.showPaywall) {
-            PaywallSheet()
-        }
+        .sheet(isPresented: $viewModel.showPaywall) { PaywallSheet() }
         .fullScreenCover(item: Binding(
             get: { viewModel.crisisResponse },
             set: { newValue in if newValue == nil { viewModel.dismissCrisis() } }
         )) { payload in
-            CrisisView(payload: payload) {
-                viewModel.dismissCrisis()
-            }
+            CrisisView(payload: payload) { viewModel.dismissCrisis() }
         }
-    }
-
-    private var remainingBanner: some View {
-        let remaining = max(0, 3 - appState.freeConvosUsed)
-        return HStack {
-            Spacer()
-            Text("\(remaining) conversation\(remaining == 1 ? "" : "s") remaining")
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                .foregroundStyle(Color("AmberAccent"))
-            Spacer()
-        }
-        .padding(.vertical, 6)
-        .background(Color("AmberAccent").opacity(0.08))
     }
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Text("🕯️").font(.system(size: 56))
-            VStack(spacing: 4) {
-                Text("Ask Bill anything.")
-                    .font(.system(.title2, design: .serif))
-                    .italic()
+        VStack(spacing: 18) {
+            AnimatedCandle(size: 48)
+
+            VStack(spacing: 6) {
+                Text("Bill is listening.")
+                    .font(.system(.title2, design: .serif, weight: .bold))
                     .foregroundStyle(Color("LexiconText"))
-                Text("He's been through it all.")
-                    .font(.system(.body, design: .serif))
+                Text("Ask him anything. He's been through it all — the darkness, the doubt, the long road back.")
+                    .font(.system(.subheadline, design: .serif))
                     .italic()
                     .foregroundStyle(Color("SaddleBrown"))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 12)
             }
+            .padding(.top, -6)
+
             VStack(spacing: 10) {
                 ForEach(suggestions, id: \.self) { prompt in
-                    Button {
-                        viewModel.inputText = prompt
-                    } label: {
-                        Text(prompt)
+                    Button { viewModel.inputText = prompt } label: {
+                        Text("\u{201C} \(prompt) \u{201D}")
                             .font(.system(.subheadline, design: .serif))
+                            .italic()
                             .foregroundStyle(Color("LexiconText"))
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 10)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity)
                             .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color("OldPaper"))
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color("CardWhite"))
                             )
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color("AgedGold"), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(Color("AgedGold").opacity(0.35), lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.top, 8)
+            .padding(.top, 10)
         }
-        .padding(.horizontal, 12)
     }
 
     private func isLastBillMessage(_ message: DisplayMessage) -> Bool {

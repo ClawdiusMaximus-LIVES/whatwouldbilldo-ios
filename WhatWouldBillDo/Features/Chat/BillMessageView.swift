@@ -9,8 +9,7 @@ struct BillMessageView: View {
 
     private var displayedContent: String {
         guard enableTypewriter else { return message.content }
-        let count = min(revealedCount, message.content.count)
-        return String(message.content.prefix(count))
+        return String(message.content.prefix(min(revealedCount, message.content.count)))
     }
 
     private var visibleCitations: [Citation] {
@@ -18,50 +17,58 @@ struct BillMessageView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("BILL W.")
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .tracking(1.5)
-                .foregroundStyle(Color("SaddleBrown"))
-
-            Text(displayedContent)
-                .font(.system(.body, design: .serif))
-                .foregroundStyle(Color("LexiconText"))
-                .lineSpacing(4)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
-
-            if !visibleCitations.isEmpty {
-                Rectangle()
-                    .fill(Color("AgedGold"))
-                    .frame(height: 1)
-                    .padding(.top, 4)
-
-                ForEach(Array(visibleCitations.enumerated()), id: \.offset) { _, citation in
-                    Text(formatCitation(citation))
-                        .font(.system(size: 11, design: .monospaced))
-                        .italic()
-                        .foregroundStyle(Color("SaddleBrown"))
-                }
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Text("🕯️").font(.system(size: 13))
+                Text("BILL W.")
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .tracking(1.5)
+                    .foregroundStyle(Color("AmberAccent"))
             }
+            .padding(.leading, 2)
+
+            HStack(alignment: .top, spacing: 0) {
+                Rectangle()
+                    .fill(Color("AmberAccent"))
+                    .frame(width: 3)
+                    .clipShape(RoundedRectangle(cornerRadius: 2))
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(displayedContent)
+                        .font(.system(.body, design: .serif))
+                        .foregroundStyle(Color("LexiconText"))
+                        .lineSpacing(5)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if !visibleCitations.isEmpty {
+                        Rectangle()
+                            .fill(Color("AgedGold").opacity(0.5))
+                            .frame(height: 1)
+                            .padding(.top, 2)
+
+                        ForEach(Array(visibleCitations.enumerated()), id: \.offset) { _, citation in
+                            Text(formatCitation(citation))
+                                .font(.system(size: 11, design: .monospaced))
+                                .italic()
+                                .foregroundStyle(Color("AmberAccent"))
+                        }
+                    }
+                }
+                .padding(.leading, 14)
+                .padding(.trailing, 16)
+                .padding(.vertical, 16)
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color("CardWhite"))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color("AgedGold").opacity(0.3), lineWidth: 1)
+            )
+            .shadow(color: .brown.opacity(0.08), radius: 6, y: 2)
         }
-        .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            UnevenRoundedRectangle(cornerRadii: .init(topLeading: 4,
-                                                      bottomLeading: 16,
-                                                      bottomTrailing: 16,
-                                                      topTrailing: 16))
-                .fill(Color("OldPaper"))
-        )
-        .overlay(
-            UnevenRoundedRectangle(cornerRadii: .init(topLeading: 4,
-                                                      bottomLeading: 16,
-                                                      bottomTrailing: 16,
-                                                      topTrailing: 16))
-                .stroke(Color("AgedGold"), lineWidth: 1)
-        )
-        .shadow(color: .brown.opacity(0.12), radius: 4, y: 2)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Bill says: \(message.content)")
         .onAppear {
@@ -78,16 +85,16 @@ struct BillMessageView: View {
             for i in 0...message.content.count {
                 if Task.isCancelled { break }
                 revealedCount = i
-                try? await Task.sleep(nanoseconds: 20_000_000) // 20ms ≈ 50 chars/sec
+                try? await Task.sleep(nanoseconds: 18_000_000)
             }
         }
     }
 
     private func formatCitation(_ c: Citation) -> String {
-        var parts: [String] = ["— From \(c.source)"]
-        if let chapter = c.chapter, !chapter.isEmpty { parts.append(chapter) }
-        if let title = c.title, !title.isEmpty, c.chapter == nil { parts.append(title) }
-        return parts.joined(separator: ", ")
+        var s = "— \(c.source)"
+        if let chapter = c.chapter, !chapter.isEmpty { s += ", \(chapter)" }
+        else if let title = c.title, !title.isEmpty { s += ", \(title)" }
+        return s
     }
 }
 
@@ -95,8 +102,9 @@ struct BillMessageView: View {
     BillMessageView(
         message: DisplayMessage(
             role: "bill",
-            content: "Resentment is the number one offender. It destroys more alcoholics than anything else.",
-            citations: [Citation(source: "Alcoholics Anonymous", chapter: "How It Works", title: nil, similarity: 0.9)]
+            content: "I hear what you're saying. And I know that feeling — the idea that one drink might take the edge off what's eating at you. I've been there. For men and women like us, that thought is the beginning of a very bad road.",
+            citations: [Citation(source: "Alcoholics Anonymous (1939)",
+                                 chapter: "Chapter 6: Into Action", title: nil, similarity: 0.9)]
         ),
         enableTypewriter: false
     )

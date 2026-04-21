@@ -9,25 +9,49 @@ struct SettingsView: View {
     @State private var sobrietyDraft: Date = Date()
     @State private var showPaywall: Bool = false
     @State private var showSourceTexts: Bool = false
-    @State private var showDisclaimer: Bool = false
-    @State private var showRestoreError: String?
+    @State private var restoreError: String?
 
-    @State private var apiStatus: String = "Checking…"
-    @State private var apiPassagesCount: Int?
+    @State private var apiStatus: APIStatus = .checking
+
+    enum APIStatus { case checking, connected, offline }
 
     var body: some View {
         NavigationStack {
-            List {
-                journeySection
-                subscriptionSection
-                aboutSection
-                legalSection
-                developerSection
+            ZStack {
+                Color("ParchmentBackground").ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: 24) {
+                        sectionHeader("MY JOURNEY")
+                        journeyGroup
+
+                        sectionHeader("SUBSCRIPTION")
+                        subscriptionGroup
+
+                        sectionHeader("ABOUT BILL W.")
+                        aboutCard
+
+                        sectionHeader("SYSTEM")
+                        systemGroup
+
+                        sectionHeader("LEGAL")
+                        legalGroup
+
+                        Spacer(minLength: 24)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                }
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
-            .background(Color("ParchmentBackground"))
-            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Settings")
+                        .font(.system(.title3, design: .serif, weight: .semibold))
+                        .foregroundStyle(Color("LexiconText"))
+                }
+            }
+            .toolbarBackground(Color("ParchmentBackground"), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .sheet(isPresented: $showSobrietyEditor) { sobrietyEditorSheet }
             .sheet(isPresented: $showPaywall) { PaywallSheet() }
             .sheet(isPresented: $showSourceTexts) { SourceTextsSheet() }
@@ -40,54 +64,201 @@ struct SettingsView: View {
 
     // MARK: Journey
 
-    private var journeySection: some View {
-        Section {
-            Button {
+    private var journeyGroup: some View {
+        GroupedCard {
+            SettingsRow(icon: "📅", title: "Sobriety Date",
+                        trailing: appState.sobrietyDate?.formatted(date: .abbreviated, time: .omitted) ?? "Not set",
+                        showChevron: true) {
                 sobrietyDraft = appState.sobrietyDate ?? Date()
                 showSobrietyEditor = true
-            } label: {
-                HStack {
-                    Text("Sobriety Date")
-                        .foregroundStyle(Color("LexiconText"))
-                    Spacer()
-                    if let date = appState.sobrietyDate {
-                        Text(date.formatted(date: .abbreviated, time: .omitted))
-                            .foregroundStyle(Color("SaddleBrown"))
-                    } else {
-                        Text("Not set")
-                            .foregroundStyle(Color("SaddleBrown"))
-                    }
-                    Image(systemName: "chevron.right")
-                        .font(.footnote)
-                        .foregroundStyle(.tertiary)
-                }
             }
-            .buttonStyle(.plain)
-
-            if let days = appState.daysSober {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Days Sober")
-                        .font(.subheadline)
-                        .foregroundStyle(Color("SaddleBrown"))
-                    HStack {
-                        Text("\(days)")
-                            .font(.system(size: 44, weight: .bold, design: .serif))
-                            .foregroundStyle(Color("AmberAccent"))
-                            .contentTransition(.numericText())
-                        Spacer()
-                    }
-                }
-                .padding(.vertical, 4)
-            }
-
-            if let days = appState.daysSober, let milestone = Milestones.current(for: days) {
-                MilestoneCardView(milestone: milestone)
-                    .listRowBackground(Color("AmberAccent").opacity(0.08))
-            }
-        } header: {
-            sectionHeader("My Journey")
+            Divider().foregroundStyle(Color("AgedGold").opacity(0.25))
+            SettingsRow(icon: "🕯️", title: "Days Sober",
+                        trailing: (appState.daysSober ?? 0).formatted(),
+                        trailingColor: Color("AmberAccent"),
+                        trailingBold: true,
+                        showChevron: false) { }
+            Divider().foregroundStyle(Color("AgedGold").opacity(0.25))
+            SettingsRow(icon: "🔔", title: "Daily Reflection",
+                        trailing: "7:00 AM",
+                        showChevron: true) { }
         }
     }
+
+    // MARK: Subscription
+
+    private var subscriptionGroup: some View {
+        GroupedCard {
+            let isActive = appState.isSubscribed || purchases.isSubscribed
+
+            HStack {
+                Text("✨").font(.system(size: 18))
+                Text("Status")
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color("LexiconText"))
+                Spacer()
+                if isActive {
+                    Text("Active")
+                        .font(.system(.footnote, design: .serif, weight: .semibold))
+                        .foregroundStyle(.teal)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Color.teal.opacity(0.15))
+                        .clipShape(Capsule())
+                } else {
+                    Text("Free")
+                        .font(.system(.footnote, design: .serif, weight: .semibold))
+                        .foregroundStyle(Color("SaddleBrown"))
+                }
+            }
+            .padding(16)
+
+            Divider().foregroundStyle(Color("AgedGold").opacity(0.25))
+
+            if isActive {
+                SettingsRow(icon: "💳", title: "Plan",
+                            trailing: purchases.activeProductID.map { planLabel($0) } ?? "Active",
+                            trailingColor: Color("AmberAccent"),
+                            showChevron: true) {
+                    if let url = URL(string: "itms-apps://apps.apple.com/account/subscriptions") {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                Divider().foregroundStyle(Color("AgedGold").opacity(0.25))
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("\(max(0, 3 - appState.freeConvosUsed)) free conversations remaining")
+                        .font(.system(.subheadline, design: .serif))
+                        .foregroundStyle(Color("SaddleBrown"))
+                    Button {
+                        showPaywall = true
+                    } label: {
+                        Text("Unlock Bill")
+                            .font(.system(.headline, design: .serif))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color("AmberAccent"))
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(16)
+                Divider().foregroundStyle(Color("AgedGold").opacity(0.25))
+            }
+
+            SettingsRow(icon: "↩️", title: "Restore Purchases",
+                        trailing: nil,
+                        showChevron: true) {
+                Task {
+                    do {
+                        try await purchases.restorePurchases()
+                        if purchases.isSubscribed { appState.isSubscribed = true }
+                    } catch {
+                        restoreError = error.localizedDescription
+                    }
+                }
+            }
+
+            if let err = restoreError {
+                Text(err)
+                    .font(.footnote)
+                    .foregroundStyle(Color("CrisisRed"))
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+            }
+        }
+    }
+
+    // MARK: About
+
+    private var aboutCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("William Griffith Wilson")
+                .font(.system(.title3, design: .serif, weight: .bold))
+                .foregroundStyle(Color("LexiconText"))
+
+            Text("1895 — 1971 · CO-FOUNDER, ALCOHOLICS ANONYMOUS")
+                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .tracking(1.2)
+                .foregroundStyle(Color("AmberAccent"))
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text("\"Bill's\" writings from 1938–1939 are in the public domain and form the foundation of this app. His words have helped millions find and maintain sobriety.")
+                .font(.system(.subheadline, design: .serif))
+                .italic()
+                .foregroundStyle(Color("SaddleBrown"))
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button("View Source Texts") { showSourceTexts = true }
+                .font(.footnote)
+                .foregroundStyle(Color("AmberAccent"))
+                .padding(.top, 4)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 18).fill(Color("CardWhite")))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color("AgedGold").opacity(0.3), lineWidth: 1))
+    }
+
+    // MARK: System
+
+    private var systemGroup: some View {
+        GroupedCard {
+            HStack(spacing: 12) {
+                Circle()
+                    .fill(statusColor)
+                    .frame(width: 10, height: 10)
+                Text("API Status")
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color("LexiconText"))
+                Spacer()
+                Text(statusLabel)
+                    .font(.system(.footnote, design: .serif))
+                    .foregroundStyle(statusColor)
+            }
+            .padding(16)
+
+            Divider().foregroundStyle(Color("AgedGold").opacity(0.25))
+
+            HStack {
+                Text("Version")
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color("LexiconText"))
+                Spacer()
+                Text("\(versionString) (build \(buildString))")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(Color("SaddleBrown"))
+            }
+            .padding(16)
+        }
+    }
+
+    // MARK: Legal
+
+    private var legalGroup: some View {
+        GroupedCard {
+            LinkRow(icon: "🔒", title: "Privacy Policy", url: "https://whatwouldbilldo.com/privacy")
+            Divider().foregroundStyle(Color("AgedGold").opacity(0.25))
+            LinkRow(icon: "📄", title: "Terms of Service", url: "https://whatwouldbilldo.com/terms")
+            Divider().foregroundStyle(Color("AgedGold").opacity(0.25))
+            LinkRow(icon: "💌", title: "Send Feedback", url: "mailto:hello@whatwouldbilldo.com")
+            Divider().foregroundStyle(Color("AgedGold").opacity(0.25))
+            VStack(alignment: .leading, spacing: 6) {
+                Text("NOT AFFILIATED")
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .tracking(1.2)
+                    .foregroundStyle(Color("AmberAccent"))
+                Text("This app is not affiliated with Alcoholics Anonymous World Services, Inc. It is independent and uses only Bill W.'s public domain writings (pre-1952).")
+                    .font(.system(.footnote, design: .serif))
+                    .foregroundStyle(Color("SaddleBrown"))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(16)
+        }
+    }
+
+    // MARK: Sobriety editor sheet
 
     private var sobrietyEditorSheet: some View {
         NavigationStack {
@@ -97,13 +268,12 @@ struct SettingsView: View {
                     Text("Your sobriety date")
                         .font(.system(.title3, design: .serif))
                         .foregroundStyle(Color("LexiconText"))
-                    DatePicker("Sobriety Date",
-                               selection: $sobrietyDraft,
+                    DatePicker("", selection: $sobrietyDraft,
                                in: ...Date(),
                                displayedComponents: .date)
                         .datePickerStyle(.graphical)
                         .padding()
-                        .background(RoundedRectangle(cornerRadius: 16).fill(Color("OldPaper")))
+                        .background(RoundedRectangle(cornerRadius: 16).fill(Color("CardWhite")))
                         .padding(.horizontal, 20)
 
                     HStack(spacing: 12) {
@@ -122,7 +292,7 @@ struct SettingsView: View {
                             Text("Save")
                                 .font(.headline)
                                 .foregroundStyle(.white)
-                                .padding(.horizontal, 28)
+                                .padding(.horizontal, 32)
                                 .padding(.vertical, 12)
                                 .background(Color("AmberAccent"))
                                 .clipShape(Capsule())
@@ -132,7 +302,7 @@ struct SettingsView: View {
                     .padding(.horizontal, 24)
                     Spacer()
                 }
-                .padding(.top, 24)
+                .padding(.top, 20)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -143,221 +313,137 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: Subscription
+    // MARK: helpers
 
-    private var subscriptionSection: some View {
-        Section {
-            if appState.isSubscribed || purchases.isSubscribed {
-                HStack {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundStyle(.teal)
-                    Text("Active")
-                        .foregroundStyle(Color("LexiconText"))
-                }
-                if let id = purchases.activeProductID {
-                    LabeledContent("Plan", value: planName(for: id))
-                }
-                Link(destination: URL(string: "itms-apps://apps.apple.com/account/subscriptions")!) {
-                    Text("Manage Subscription")
-                        .foregroundStyle(Color("AmberAccent"))
-                }
-            } else {
-                let remaining = max(0, 3 - appState.freeConvosUsed)
-                Text("\(remaining) free conversation\(remaining == 1 ? "" : "s") remaining")
-                    .foregroundStyle(Color("SaddleBrown"))
-                Button {
-                    showPaywall = true
-                } label: {
-                    HStack {
-                        Text("Unlock Bill")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                        Spacer()
-                        Image(systemName: "lock.open.fill")
-                            .foregroundStyle(.white)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color("AmberAccent"))
-                    .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-            }
+    private func sectionHeader(_ text: String) -> some View {
+        HStack {
+            Text(text)
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .tracking(1.4)
+                .foregroundStyle(Color("AmberAccent"))
+            Spacer()
+        }
+        .padding(.leading, 8)
+        .padding(.top, 4)
+    }
 
-            Button("Restore Purchases") {
-                Task {
-                    do {
-                        try await purchases.restorePurchases()
-                        if purchases.isSubscribed { appState.isSubscribed = true }
-                    } catch {
-                        showRestoreError = error.localizedDescription
-                    }
-                }
-            }
-            if let err = showRestoreError {
-                Text(err)
-                    .font(.footnote)
-                    .foregroundStyle(Color("CrisisRed"))
-            }
-        } header: {
-            sectionHeader("Subscription")
+    private var statusColor: Color {
+        switch apiStatus {
+        case .checking: return Color("SaddleBrown")
+        case .connected: return .green
+        case .offline: return Color("CrisisRed")
         }
     }
 
-    private func planName(for id: String) -> String {
-        if id.contains("weekly") { return "Weekly" }
-        if id.contains("monthly") { return "Monthly" }
-        if id.contains("yearly") { return "Yearly" }
+    private var statusLabel: String {
+        switch apiStatus {
+        case .checking: return "Checking…"
+        case .connected: return "● Connected"
+        case .offline: return "● Offline"
+        }
+    }
+
+    private var versionString: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+    }
+
+    private var buildString: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
+    }
+
+    private func planLabel(_ id: String) -> String {
+        if id.contains("weekly") { return "Weekly · $4.99" }
+        if id.contains("monthly") { return "Monthly · $12.99" }
+        if id.contains("yearly") { return "Yearly · $59.99" }
         return id
     }
 
-    // MARK: About
-
-    private var aboutSection: some View {
-        Section {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("About Bill W.")
-                    .font(.system(.headline, design: .serif))
-                    .foregroundStyle(Color("LexiconText"))
-                Text("William Griffith Wilson (1895–1971). Co-founder of Alcoholics Anonymous. His writings have helped millions find sobriety.")
-                    .font(.system(.subheadline, design: .serif))
-                    .foregroundStyle(Color("SaddleBrown"))
-            }
-            .padding(.vertical, 4)
-
-            Button {
-                showSourceTexts = true
-            } label: {
-                Text("View Source Texts")
-                    .foregroundStyle(Color("AmberAccent"))
-            }
-        } header: {
-            sectionHeader("About Bill W.")
-        }
-    }
-
-    // MARK: Legal
-
-    private var legalSection: some View {
-        Section {
-            DisclosureGroup(isExpanded: $showDisclaimer) {
-                Text("This app is not affiliated with Alcoholics Anonymous World Services, Inc. It is independent and uses only Bill W.'s public domain writings (pre-1952).")
-                    .font(.footnote)
-                    .foregroundStyle(Color("SaddleBrown"))
-            } label: {
-                Text("Not affiliated with AAWS")
-                    .foregroundStyle(Color("LexiconText"))
-            }
-
-            Link("Privacy Policy", destination: URL(string: "https://whatwouldbilldo.com/privacy")!)
-            Link("Terms of Service", destination: URL(string: "https://whatwouldbilldo.com/terms")!)
-            Link("Send Feedback", destination: URL(string: "mailto:hello@whatwouldbilldo.com")!)
-        } header: {
-            sectionHeader("Legal")
-        }
-    }
-
-    // MARK: Developer
-
-    private var developerSection: some View {
-        Section {
-            LabeledContent("Version",
-                           value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—")
-            LabeledContent("Build",
-                           value: Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—")
-            HStack {
-                Text("API Status")
-                    .foregroundStyle(Color("LexiconText"))
-                Spacer()
-                Text(apiStatus)
-                    .font(.footnote)
-                    .foregroundStyle(apiStatus.starts(with: "✓") ? .teal : Color("CrisisRed"))
-            }
-        } header: {
-            sectionHeader("Developer")
-        }
-    }
-
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.system(size: 11, weight: .bold, design: .monospaced))
-            .tracking(1.2)
-            .foregroundStyle(Color("AmberAccent"))
-    }
-
     private func checkAPI() async {
+        apiStatus = .checking
         do {
             let ok = try await APIClient.shared.checkHealth()
-            apiStatus = ok ? "✓ Connected" : "⚠ Degraded"
+            apiStatus = ok ? .connected : .offline
         } catch {
-            apiStatus = "⚠ Offline"
+            apiStatus = .offline
         }
     }
 }
 
-// MARK: Milestones
+// MARK: Row primitives
 
-struct Milestone {
-    let days: Int
-    let label: String
-    let message: String
-}
-
-enum Milestones {
-    static let all: [Milestone] = [
-        Milestone(days: 1,    label: "Your first day",
-                  message: "One day. That was my first, too. Keep coming back."),
-        Milestone(days: 7,    label: "One week",
-                  message: "A week without a drink. You've done something most cannot."),
-        Milestone(days: 30,   label: "Thirty days",
-                  message: "Thirty days. You've broken something that was breaking you."),
-        Milestone(days: 60,   label: "Two months",
-                  message: "Two months. The habit is loosening its grip."),
-        Milestone(days: 90,   label: "Ninety days",
-                  message: "Ninety days. You are becoming who you were meant to be."),
-        Milestone(days: 180,  label: "Six months",
-                  message: "Six months. You are not the same person who started."),
-        Milestone(days: 365,  label: "One year",
-                  message: "One year. You have given yourself a life."),
-        Milestone(days: 730,  label: "Two years",
-                  message: "Two years. You are free."),
-        Milestone(days: 1825, label: "Five years",
-                  message: "Five years. Your story saves others now.")
-    ]
-
-    static func current(for days: Int) -> Milestone? {
-        all.first(where: { $0.days == days })
-    }
-
-    static func next(after days: Int) -> Milestone? {
-        all.first(where: { $0.days > days })
-    }
-}
-
-private struct MilestoneCardView: View {
-    let milestone: Milestone
+private struct GroupedCard<Content: View>: View {
+    @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(milestone.label.uppercased())
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .tracking(1.2)
-                .foregroundStyle(Color("AmberAccent"))
-            Text(milestone.message)
-                .font(.system(.body, design: .serif))
-                .italic()
-                .foregroundStyle(Color("LexiconText"))
-        }
-        .padding(.vertical, 4)
+        VStack(spacing: 0) { content }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 18).fill(Color("CardWhite")))
+            .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color("AgedGold").opacity(0.3), lineWidth: 1))
     }
 }
 
-// MARK: Source Texts
+private struct SettingsRow: View {
+    let icon: String
+    let title: String
+    let trailing: String?
+    var trailingColor: Color = Color("SaddleBrown")
+    var trailingBold: Bool = false
+    let showChevron: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 14) {
+                Text(icon).font(.system(size: 20))
+                Text(title)
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color("LexiconText"))
+                Spacer()
+                if let trailing {
+                    Text(trailing)
+                        .font(.system(trailingBold ? .body : .subheadline,
+                                      design: .serif,
+                                      weight: trailingBold ? .bold : .regular))
+                        .foregroundStyle(trailingColor)
+                }
+                if showChevron {
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .padding(16)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct LinkRow: View {
+    let icon: String
+    let title: String
+    let url: String
+
+    var body: some View {
+        Link(destination: URL(string: url)!) {
+            HStack(spacing: 14) {
+                Text(icon).font(.system(size: 18))
+                Text(title)
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color("LexiconText"))
+                Spacer()
+                Image(systemName: "arrow.up.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(16)
+        }
+    }
+}
+
+// MARK: Source texts (unchanged content)
 
 private struct SourceTextsSheet: View {
     @Environment(\.dismiss) private var dismiss
-
     private let sources: [(title: String, description: String)] = [
         ("Alcoholics Anonymous (1939)", "The original Big Book — first edition."),
         ("Original Manuscript (1938)", "Pre-publication multilith manuscript."),
@@ -365,7 +451,6 @@ private struct SourceTextsSheet: View {
         ("Personal letters", "Correspondence available in the public domain."),
         ("Talk transcripts", "Public-domain speeches and talks.")
     ]
-
     var body: some View {
         NavigationStack {
             ZStack {

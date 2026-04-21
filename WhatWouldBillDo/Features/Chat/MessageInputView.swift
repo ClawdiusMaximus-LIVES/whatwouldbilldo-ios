@@ -8,31 +8,34 @@ struct MessageInputView: View {
     private let characterLimit = 500
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             HStack(alignment: .bottom, spacing: 10) {
                 ZStack(alignment: .topLeading) {
                     TextEditor(text: $text)
                         .font(.system(.body, design: .serif))
                         .foregroundStyle(Color("LexiconText"))
                         .scrollContentBackground(.hidden)
-                        .background(Color("ParchmentBackground"))
-                        .frame(minHeight: 42, maxHeight: 140)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
+                        .frame(minHeight: 44, maxHeight: 140)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
 
                     if text.isEmpty {
                         Text("Ask Bill anything…")
                             .font(.system(.body, design: .serif))
                             .italic()
-                            .foregroundStyle(Color("SaddleBrown").opacity(0.6))
-                            .padding(.horizontal, 14)
+                            .foregroundStyle(Color("SaddleBrown").opacity(0.55))
+                            .padding(.horizontal, 16)
                             .padding(.vertical, 14)
                             .allowsHitTesting(false)
                     }
                 }
+                .background(
+                    RoundedRectangle(cornerRadius: 22)
+                        .fill(Color("CardWhite"))
+                )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("AgedGold"), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 22)
+                        .stroke(Color("AgedGold").opacity(0.4), lineWidth: 1)
                 )
 
                 Button {
@@ -41,7 +44,7 @@ struct MessageInputView: View {
                     onSend(trimmed)
                 } label: {
                     Image(systemName: "paperplane.fill")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                         .frame(width: 44, height: 44)
                         .background(isCtaActive ? Color("AmberAccent") : Color("AmberAccent").opacity(0.35))
@@ -61,6 +64,7 @@ struct MessageInputView: View {
                                          ? Color("CrisisRed")
                                          : Color("SaddleBrown"))
                 }
+                .padding(.horizontal, 4)
             }
         }
         .padding(.horizontal, 16)
