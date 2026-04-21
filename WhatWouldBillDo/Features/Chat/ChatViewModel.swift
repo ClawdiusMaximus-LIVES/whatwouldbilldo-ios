@@ -51,7 +51,7 @@ final class ChatViewModel {
         let history = buildHistory()
 
         do {
-            let response = try await api.askBill(message: text, history: history)
+            let response = try await api.askBill(message: text, history: history, userName: appState.userName)
 
             if response.crisis {
                 isLoading = false

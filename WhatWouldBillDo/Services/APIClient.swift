@@ -52,8 +52,13 @@ final class APIClient: @unchecked Sendable {
         self.session = URLSession(configuration: config)
     }
 
-    func askBill(message: String, history: [[String: String]]) async throws -> AskResponse {
-        let req = AskRequest(message: message, conversation_history: history)
+    func askBill(message: String, history: [[String: String]], userName: String?) async throws -> AskResponse {
+        let trimmed = userName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let req = AskRequest(
+            message: message,
+            conversation_history: history,
+            user_name: (trimmed?.isEmpty == false) ? trimmed : nil
+        )
         let data: Data = try encoder.encode(req)
         return try await post("/ask", body: data)
     }

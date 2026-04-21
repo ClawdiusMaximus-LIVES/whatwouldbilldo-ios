@@ -3,6 +3,7 @@ import Foundation
 struct AskRequest: Codable {
     var message: String
     var conversation_history: [[String: String]]
+    var user_name: String?
 }
 
 struct Citation: Codable, Hashable {

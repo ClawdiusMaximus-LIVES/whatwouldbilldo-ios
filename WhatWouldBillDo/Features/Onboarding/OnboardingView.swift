@@ -8,7 +8,7 @@ struct OnboardingView: View {
     @State private var sobrietyDate: Date = Calendar.current.date(byAdding: .year, value: -1, to: Date()) ?? Date()
     @State private var sobrietyDateWasSet: Bool = false
 
-    private let totalScreens = 4
+    private let totalScreens = 5
 
     var body: some View {
         ZStack {
@@ -25,14 +25,16 @@ struct OnboardingView: View {
                 TabView(selection: $currentIndex) {
                     IntroScreen(onContinue: advance)
                         .tag(0)
-                    NeedsScreen(selectedNeeds: $selectedNeeds, onContinue: advance)
+                    NameScreen(onContinue: advance)
                         .tag(1)
+                    NeedsScreen(selectedNeeds: $selectedNeeds, onContinue: advance)
+                        .tag(2)
                     SobrietyScreen(date: $sobrietyDate,
                                    dateWasSet: $sobrietyDateWasSet,
                                    onContinue: advance)
-                        .tag(2)
-                    InvitationScreen(onStart: completeOnboarding)
                         .tag(3)
+                    InvitationScreen(userName: appState.userName, onStart: completeOnboarding)
+                        .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.3), value: currentIndex)
@@ -153,7 +155,98 @@ private struct IntroScreen: View {
     }
 }
 
-// MARK: Screen 2 — Needs
+// MARK: Screen 2 — Name
+
+private struct NameScreen: View {
+    @Environment(AppState.self) private var appState
+    let onContinue: () -> Void
+
+    @FocusState private var isFieldFocused: Bool
+
+    var body: some View {
+        @Bindable var bindable = appState
+        return VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Who am I\nspeaking with?")
+                            .font(.system(size: 28, weight: .bold, design: .serif))
+                            .foregroundStyle(Color("LexiconText"))
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text("Bill always preferred to know a person's name.")
+                            .font(.system(size: 17, design: .serif))
+                            .italic()
+                            .foregroundStyle(Color("SaddleBrown"))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
+
+                    TextField("Your first name", text: $bindable.userName)
+                        .focused($isFieldFocused)
+                        .textFieldStyle(.plain)
+                        .textInputAutocapitalization(.words)
+                        .autocorrectionDisabled(true)
+                        .submitLabel(.done)
+                        .onSubmit { isFieldFocused = false }
+                        .font(.system(size: 20, design: .serif))
+                        .foregroundStyle(Color("LexiconText"))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color("CardWhite"))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color("AgedGold"), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+
+                    Spacer(minLength: 8)
+                }
+            }
+
+            VStack(spacing: 10) {
+                Button {
+                    appState.userName = appState.userName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    isFieldFocused = false
+                    onContinue()
+                } label: {
+                    Text("Nice to meet you")
+                        .font(.system(.headline, design: .serif))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color("AmberAccent"))
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(appState.userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .opacity(appState.userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.5 : 1.0)
+
+                Button {
+                    appState.userName = ""
+                    isFieldFocused = false
+                    onContinue()
+                } label: {
+                    Text("Continue without sharing")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundStyle(Color("SaddleBrown").opacity(0.7))
+                        .padding(.vertical, 6)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 14)
+            .background(Color("ParchmentBackground"))
+        }
+    }
+}
+
+// MARK: Screen 3 — Needs
 
 struct NeedOption: Identifiable {
     let id: String
@@ -290,7 +383,7 @@ private struct NeedCard: View {
     }
 }
 
-// MARK: Screen 3 — Sobriety Date
+// MARK: Screen 4 — Sobriety Date
 
 private struct SobrietyScreen: View {
     @Binding var date: Date
@@ -376,10 +469,15 @@ private struct SobrietyScreen: View {
     }
 }
 
-// MARK: Screen 4 — Invitation
+// MARK: Screen 5 — Invitation
 
 private struct InvitationScreen: View {
+    let userName: String
     let onStart: () -> Void
+
+    private var trimmedName: String {
+        userName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -430,7 +528,11 @@ private struct InvitationScreen: View {
     }
 
     private var inviteBody: Text {
-        Text("This isn't a chatbot. It's Bill.\n\n")
+        let greeting: Text = trimmedName.isEmpty
+            ? Text("")
+            : Text("\(trimmedName), Bill has time for you.\n\n").bold()
+        return greeting
+        + Text("This isn't a chatbot. It's Bill.\n\n")
         + Text("Every word he speaks comes from his own hand — the 1939 Big Book, his letters, his talks. The same man who sat across kitchen tables at 3am with strangers. Who knew what it felt like to want a drink more than anything in the world. And found a way through anyway.\n\n")
         + Text("Ask him about that resentment you can't shake. Tell him where you're stuck on Step 4. Say the thing you haven't said out loud yet.").italic()
         + Text("\n\nHe's heard it all. And he has time for you.")

@@ -32,7 +32,7 @@ struct PaywallSheet: View {
                     AnimatedCandle(size: 76, onDark: true)
 
                     VStack(spacing: 6) {
-                        Text("Bill is\nwaiting for you.")
+                        Text(titleText)
                             .font(.system(size: 36, weight: .bold, design: .serif))
                             .foregroundStyle(Color("ParchmentBackground"))
                             .multilineTextAlignment(.center)
@@ -137,6 +137,11 @@ struct PaywallSheet: View {
                 selectedProductID = monthly.id
             }
         }
+    }
+
+    private var titleText: String {
+        let name = appState.userName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? "Bill is\nwaiting for you." : "Bill is waiting for you, \(name)."
     }
 
     private var orderedProducts: [Product] {

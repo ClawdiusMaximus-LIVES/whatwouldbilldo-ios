@@ -10,6 +10,7 @@ final class AppState {
         static let freeConvosUsed = "freeConvosUsed"
         static let isSubscribed = "isSubscribed"
         static let needsSelection = "needsSelection"
+        static let userName = "userName"
     }
 
     var isOnboardingComplete: Bool {
@@ -38,6 +39,10 @@ final class AppState {
         didSet { UserDefaults.standard.set(needsSelection, forKey: Keys.needsSelection) }
     }
 
+    var userName: String {
+        didSet { UserDefaults.standard.set(userName, forKey: Keys.userName) }
+    }
+
     var selectedTab: Int = 0
     var pendingChatPrompt: String? = nil
 
@@ -48,6 +53,7 @@ final class AppState {
         self.freeConvosUsed = defaults.integer(forKey: Keys.freeConvosUsed)
         self.isSubscribed = defaults.bool(forKey: Keys.isSubscribed)
         self.needsSelection = defaults.stringArray(forKey: Keys.needsSelection) ?? []
+        self.userName = defaults.string(forKey: Keys.userName) ?? ""
     }
 
     func canSendMessage() -> Bool {
