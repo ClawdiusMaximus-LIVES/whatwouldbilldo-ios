@@ -1,0 +1,21 @@
+import SwiftUI
+import SwiftData
+
+// App Store Review Notes:
+// This app is an AI chatbot grounded in Bill W.'s public domain writings (1939 Big Book).
+// It includes a crisis detection system that immediately redirects to 988 and SAMHSA.
+// Not affiliated with AAWS. First 3 conversations are free — no test account needed.
+
+@main
+struct WhatWouldBillDoApp: App {
+    @State private var appState = AppState()
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(appState)
+                .preferredColorScheme(.light)
+        }
+        .modelContainer(for: [Conversation.self, Message.self])
+    }
+}
