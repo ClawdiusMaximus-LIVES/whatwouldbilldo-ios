@@ -1,0 +1,145 @@
+{
+  "identifier" : "9F4BBC2F-7A3E-4E8A-B0B9-7B5A2E7A3F01",
+  "nonRenewingSubscriptions" : [],
+  "products" : [],
+  "settings" : {
+    "_applicationInternalID" : "",
+    "_developerTeamID" : "7BW79QC9WM",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 0,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21571842",
+      "localizations" : [
+        {
+          "description" : "Access to Bill W.",
+          "displayName" : "Bill's Counsel",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "BillCounsel",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "101",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlimited conversations with Bill — billed weekly.",
+              "displayName" : "Weekly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.whatwouldbilldo.app.weekly",
+          "recurringSubscriptionPeriod" : "P1W",
+          "referenceName" : "WWBD Weekly",
+          "subscriptionGroupID" : "21571842",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : []
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "12.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "102",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlimited conversations with Bill — billed monthly.",
+              "displayName" : "Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.whatwouldbilldo.app.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "WWBD Monthly",
+          "subscriptionGroupID" : "21571842",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : []
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "59.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "103",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlimited conversations with Bill — billed yearly. Best value.",
+              "displayName" : "Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.whatwouldbilldo.app.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "WWBD Yearly",
+          "subscriptionGroupID" : "21571842",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : []
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
