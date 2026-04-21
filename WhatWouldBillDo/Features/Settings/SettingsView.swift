@@ -209,7 +209,7 @@ struct SettingsView: View {
                 Circle()
                     .fill(statusColor)
                     .frame(width: 10, height: 10)
-                Text("API Status")
+                Text("Status")
                     .font(.system(.body, design: .serif))
                     .foregroundStyle(Color("LexiconText"))
                 Spacer()
@@ -424,7 +424,11 @@ private struct LinkRow: View {
     let url: String
 
     var body: some View {
-        Link(destination: URL(string: url)!) {
+        Button {
+            if let url = URL(string: url) {
+                UIApplication.shared.open(url)
+            }
+        } label: {
             HStack(spacing: 14) {
                 Text(icon).font(.system(size: 18))
                 Text(title)
@@ -437,6 +441,7 @@ private struct LinkRow: View {
             }
             .padding(16)
         }
+        .buttonStyle(.plain)
     }
 }
 

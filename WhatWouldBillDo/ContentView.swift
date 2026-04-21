@@ -32,12 +32,19 @@ struct ContentView: View {
                 .task {
                     await setupNotificationsOnce()
                 }
+                .task {
+                    await prefetchDailyReflection()
+                }
                 .onChange(of: appState.sobrietyDate) { _, newValue in
                     Task { await NotificationManager.shared.scheduleMilestones(sobrietyDate: newValue) }
                 }
             }
         }
         .background(Color("ParchmentBackground").ignoresSafeArea())
+    }
+
+    private func prefetchDailyReflection() async {
+        _ = try? await APIClient.shared.getDailyReflection()
     }
 
     private func setupNotificationsOnce() async {

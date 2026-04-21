@@ -72,7 +72,6 @@ private struct ChatContent: View {
 
     private let suggestions = [
         "I'm struggling with a craving right now.",
-        "I had a resentment come up today.",
         "I'm working through Step 4 and I'm stuck.",
         "I relapsed. I don't know what to do."
     ]

@@ -17,14 +17,14 @@ struct MessageInputView: View {
                     .lineLimit(1...4)
                     .font(.system(.body, design: .serif))
                     .foregroundStyle(Color("LexiconText"))
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
                     .background(
-                        Capsule(style: .continuous)
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
                             .fill(Color("CardWhite"))
                     )
                     .overlay(
-                        Capsule(style: .continuous)
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
                             .stroke(Color("AgedGold").opacity(0.4), lineWidth: 1)
                     )
 

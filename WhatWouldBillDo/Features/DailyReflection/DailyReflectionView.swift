@@ -190,19 +190,24 @@ struct DailyReflectionView: View {
             appState.pendingChatPrompt = "I was just reading: \"\(reflection.passage)\". What should I take from this?"
             appState.selectedTab = 0
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 Image(systemName: "bubble.left.and.bubble.right.fill")
                 Text("Ask Bill about this passage")
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
             }
             .font(.system(.headline, design: .serif))
             .foregroundStyle(Color("AmberAccent"))
             .frame(maxWidth: .infinity)
+            .padding(.horizontal, 24)
             .padding(.vertical, 14)
             .background(
-                Capsule().fill(Color("AmberAccent").opacity(0.1))
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color("AmberAccent").opacity(0.1))
             )
             .overlay(
-                Capsule().stroke(Color("AmberAccent").opacity(0.5), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(Color("AmberAccent").opacity(0.5), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
