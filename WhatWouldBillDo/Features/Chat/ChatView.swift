@@ -121,6 +121,11 @@ private struct ChatContent: View {
                 .onChange(of: viewModel.isLoading) { _, loading in
                     if loading { scrollToBottom(proxy: proxy, anchor: "typing") }
                 }
+                .onChange(of: viewModel.revealProgress) { _, _ in
+                    if let lastID = viewModel.messages.last?.id {
+                        proxy.scrollTo(lastID, anchor: .bottom)
+                    }
+                }
                 .onChange(of: isInputFocused) { _, focused in
                     if focused { scrollToBottom(proxy: proxy) }
                 }
