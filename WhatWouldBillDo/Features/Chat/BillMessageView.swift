@@ -14,10 +14,6 @@ struct BillMessageView: View {
         return String(message.content.prefix(clamped))
     }
 
-    private var visibleCitations: [Citation] {
-        CitationFilter.filter(message.citations)
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
@@ -35,31 +31,15 @@ struct BillMessageView: View {
                     .frame(width: 3)
                     .clipShape(RoundedRectangle(cornerRadius: 2))
 
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(displayedContent)
-                        .font(.system(.body, design: .serif))
-                        .foregroundStyle(Color("LexiconText"))
-                        .lineSpacing(5)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    if !visibleCitations.isEmpty {
-                        Rectangle()
-                            .fill(Color("AgedGold").opacity(0.5))
-                            .frame(height: 1)
-                            .padding(.top, 2)
-
-                        ForEach(Array(visibleCitations.enumerated()), id: \.offset) { _, citation in
-                            Text(formatCitation(citation))
-                                .font(.system(size: 11, design: .monospaced))
-                                .italic()
-                                .foregroundStyle(Color("AmberAccent"))
-                        }
-                    }
-                }
-                .padding(.leading, 14)
-                .padding(.trailing, 16)
-                .padding(.vertical, 16)
+                Text(displayedContent)
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color("LexiconText"))
+                    .lineSpacing(5)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.leading, 14)
+                    .padding(.trailing, 16)
+                    .padding(.vertical, 16)
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
@@ -79,12 +59,6 @@ struct BillMessageView: View {
         }
     }
 
-    private func formatCitation(_ c: Citation) -> String {
-        var s = "— \(c.source)"
-        if let chapter = c.chapter, !chapter.isEmpty { s += ", \(chapter)" }
-        else if let title = c.title, !title.isEmpty { s += ", \(title)" }
-        return s
-    }
 }
 
 #Preview {
