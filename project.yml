@@ -25,20 +25,15 @@ targets:
       - path: WhatWouldBillDo
         excludes:
           - "**/.DS_Store"
+          - "Info.plist"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.whatwouldbilldo.app
         PRODUCT_NAME: WhatWouldBillDo
-        INFOPLIST_KEY_CFBundleDisplayName: "What Would Bill Do?"
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleDefault
-        INFOPLIST_KEY_NSUserNotificationsUsageDescription: "Bill sends you a daily reflection and celebrates your milestones."
-        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
-        GENERATE_INFOPLIST_FILE: YES
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: WhatWouldBillDo/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AmberAccent
         TARGETED_DEVICE_FAMILY: "1"
