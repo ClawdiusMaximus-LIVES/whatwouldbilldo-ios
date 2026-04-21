@@ -68,6 +68,7 @@ struct ChatView: View {
 private struct ChatContent: View {
     @Bindable var viewModel: ChatViewModel
     @Environment(AppState.self) private var appState
+    @FocusState private var isInputFocused: Bool
 
     private let suggestions = [
         "I'm struggling with a craving right now.",
@@ -115,9 +116,13 @@ private struct ChatContent: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                 }
+                .scrollDismissesKeyboard(.interactively)
                 .onChange(of: viewModel.messages) { _, _ in scrollToBottom(proxy: proxy) }
                 .onChange(of: viewModel.isLoading) { _, loading in
                     if loading { scrollToBottom(proxy: proxy, anchor: "typing") }
+                }
+                .onChange(of: isInputFocused) { _, focused in
+                    if focused { scrollToBottom(proxy: proxy) }
                 }
             }
 
@@ -126,11 +131,21 @@ private struct ChatContent: View {
             MessageInputView(
                 text: $viewModel.inputText,
                 isSending: viewModel.isLoading,
+                isFocused: $isInputFocused,
                 onSend: { text in
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    isInputFocused = false
                     Task { await viewModel.sendMessage(text) }
                 }
             )
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { isInputFocused = false }
+                        .font(.system(.subheadline, design: .serif))
+                        .foregroundStyle(Color("AmberAccent"))
+                }
+            }
         }
         .background(Color("ParchmentBackground").ignoresSafeArea())
         .sheet(isPresented: $viewModel.showPaywall) { PaywallSheet() }
