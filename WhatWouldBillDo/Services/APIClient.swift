@@ -33,9 +33,9 @@ final class APIClient: @unchecked Sendable {
     static let shared = APIClient()
 
     #if DEBUG
-    let baseURL = "http://localhost:8000"
+    let baseURL = "https://whatwouldbilldo-api.fly.dev"
     #else
-    let baseURL = "https://api.whatwouldbilldo.com"
+    let baseURL = "https://whatwouldbilldo-api.fly.dev"
     #endif
 
     private let session: URLSession
