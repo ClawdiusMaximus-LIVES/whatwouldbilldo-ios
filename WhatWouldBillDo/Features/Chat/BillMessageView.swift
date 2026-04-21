@@ -2,14 +2,16 @@ import SwiftUI
 
 struct BillMessageView: View {
     let message: DisplayMessage
-    let enableTypewriter: Bool
+    /// Number of characters currently revealed. `nil` means show the full message.
+    let revealCount: Int?
+    var onTap: (() -> Void)? = nil
 
-    @State private var revealedCount: Int = 0
-    @State private var revealTask: Task<Void, Never>? = nil
+    private var isRevealing: Bool { revealCount != nil }
 
     private var displayedContent: String {
-        guard enableTypewriter else { return message.content }
-        return String(message.content.prefix(min(revealedCount, message.content.count)))
+        guard let count = revealCount else { return message.content }
+        let clamped = max(0, min(count, message.content.count))
+        return String(message.content.prefix(clamped))
     }
 
     private var visibleCitations: [Citation] {
@@ -71,22 +73,9 @@ struct BillMessageView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Bill says: \(message.content)")
-        .onAppear {
-            guard enableTypewriter else { return }
-            startReveal()
-        }
-        .onDisappear { revealTask?.cancel() }
-    }
-
-    private func startReveal() {
-        revealTask?.cancel()
-        revealedCount = 0
-        revealTask = Task { @MainActor in
-            for i in 0...message.content.count {
-                if Task.isCancelled { break }
-                revealedCount = i
-                try? await Task.sleep(nanoseconds: 18_000_000)
-            }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isRevealing { onTap?() }
         }
     }
 
@@ -106,7 +95,7 @@ struct BillMessageView: View {
             citations: [Citation(source: "Alcoholics Anonymous (1939)",
                                  chapter: "Chapter 6: Into Action", title: nil, similarity: 0.9)]
         ),
-        enableTypewriter: false
+        revealCount: nil
     )
     .padding()
     .background(Color("ParchmentBackground"))

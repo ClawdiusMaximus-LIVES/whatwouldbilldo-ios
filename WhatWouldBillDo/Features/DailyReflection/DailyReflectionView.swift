@@ -5,6 +5,8 @@ struct DailyReflectionView: View {
     @State private var reflection: DailyReflectionResponse?
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
+    @State private var showPaywall: Bool = false
+    @State private var pendingReflection: DailyReflectionResponse? = nil
 
     var body: some View {
         NavigationStack {
@@ -56,6 +58,17 @@ struct DailyReflectionView: View {
             .toolbarBackground(.visible, for: .navigationBar)
         }
         .task { if reflection == nil { await load() } }
+        .sheet(isPresented: $showPaywall) { PaywallSheet() }
+        .onChange(of: appState.isSubscribed) { _, isSubscribed in
+            guard isSubscribed, let reflection = pendingReflection else { return }
+            pendingReflection = nil
+            routeToChat(reflection: reflection)
+        }
+    }
+
+    private func routeToChat(reflection: DailyReflectionResponse) {
+        appState.pendingChatPrompt = "I was just reading: \"\(reflection.passage)\". What should I take from this?"
+        appState.selectedTab = 0
     }
 
     private var headerBlock: some View {
@@ -187,8 +200,12 @@ struct DailyReflectionView: View {
 
     private func askButton(reflection: DailyReflectionResponse) -> some View {
         Button {
-            appState.pendingChatPrompt = "I was just reading: \"\(reflection.passage)\". What should I take from this?"
-            appState.selectedTab = 0
+            if appState.canSendMessage() {
+                routeToChat(reflection: reflection)
+            } else {
+                pendingReflection = reflection
+                showPaywall = true
+            }
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: "bubble.left.and.bubble.right.fill")

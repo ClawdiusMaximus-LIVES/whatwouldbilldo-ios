@@ -13,10 +13,15 @@ final class ChatViewModel {
     var showPaywall: Bool = false
     var crisisResponse: CrisisPayload? = nil
 
+    var revealProgress: [UUID: Int] = [:]
+
+    var isAnimatingReveal: Bool { !revealProgress.isEmpty }
+
     private let modelContext: ModelContext
     private let appState: AppState
     private let api: APIClient
     private var activeConversation: Conversation?
+    private var revealTask: Task<Void, Never>? = nil
 
     init(modelContext: ModelContext, appState: AppState, api: APIClient = .shared) {
         self.modelContext = modelContext
@@ -75,6 +80,7 @@ final class ChatViewModel {
             )
             messages.append(billMessage)
             persist(billMessage)
+            startReveal(for: billMessage)
 
             if !appState.isSubscribed {
                 appState.freeConvosUsed += 1
@@ -87,6 +93,37 @@ final class ChatViewModel {
 
     func dismissCrisis() {
         crisisResponse = nil
+    }
+
+    func skipReveal(for id: UUID) {
+        guard revealProgress[id] != nil else { return }
+        revealTask?.cancel()
+        revealProgress.removeValue(forKey: id)
+    }
+
+    private func startReveal(for message: DisplayMessage) {
+        revealTask?.cancel()
+        let id = message.id
+        let total = message.content.count
+        guard total > 0 else { return }
+        revealProgress[id] = 0
+
+        // Cap total reveal time around ~7s for long letters; keep ~18ms/char feel for short ones.
+        let perCharNs: UInt64 = max(
+            3_000_000,
+            min(18_000_000, UInt64(7_000_000_000 / UInt64(max(1, total))))
+        )
+
+        revealTask = Task { @MainActor [weak self] in
+            var i = 0
+            while i <= total {
+                if Task.isCancelled { return }
+                self?.revealProgress[id] = i
+                try? await Task.sleep(nanoseconds: perCharNs)
+                i += 1
+            }
+            self?.revealProgress.removeValue(forKey: id)
+        }
     }
 
     private func buildHistory() -> [[String: String]] {

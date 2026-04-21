@@ -1,15 +1,12 @@
 import SwiftUI
-import StoreKit
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
-    @State private var purchases = PurchaseManager.shared
 
     @State private var currentIndex: Int = 0
     @State private var selectedNeeds: Set<String> = []
     @State private var sobrietyDate: Date = Calendar.current.date(byAdding: .year, value: -1, to: Date()) ?? Date()
     @State private var sobrietyDateWasSet: Bool = false
-    @State private var selectedProductID: String? = nil
 
     private let totalScreens = 4
 
@@ -34,20 +31,11 @@ struct OnboardingView: View {
                                    dateWasSet: $sobrietyDateWasSet,
                                    onContinue: advance)
                         .tag(2)
-                    FreeTrialScreen(products: purchases.products,
-                                    selectedProductID: $selectedProductID,
-                                    onStart: completeOnboarding)
+                    InvitationScreen(onStart: completeOnboarding)
                         .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.3), value: currentIndex)
-            }
-        }
-        .task {
-            if purchases.products.isEmpty { await purchases.loadProducts() }
-            if selectedProductID == nil,
-               let monthly = purchases.products.first(where: { $0.id.contains("monthly") }) {
-                selectedProductID = monthly.id
             }
         }
     }
@@ -388,230 +376,70 @@ private struct SobrietyScreen: View {
     }
 }
 
-// MARK: Screen 4 — Free Trial
+// MARK: Screen 4 — Invitation
 
-private struct FreeTrialScreen: View {
-    let products: [Product]
-    @Binding var selectedProductID: String?
+private struct InvitationScreen: View {
     let onStart: () -> Void
-    @State private var purchases = PurchaseManager.shared
 
     var body: some View {
-        VStack(spacing: 0) {
+        GeometryReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Ask Bill anything.")
-                            .font(.system(size: 28, weight: .bold, design: .serif))
-                            .foregroundStyle(Color("LexiconText"))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.85)
-                        Text("Your first 3 conversations are free. Then a small subscription keeps Bill's light on.")
-                            .font(.system(.footnote, design: .serif))
-                            .italic()
-                            .foregroundStyle(Color("LexiconText").opacity(0.85))
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(.top, 8)
-                    .padding(.horizontal, 20)
+                VStack(spacing: 22) {
+                    Spacer(minLength: 16)
 
-                    FreeConversationsBanner()
-                        .padding(.horizontal, 16)
+                    AnimatedCandle(size: candleSize(for: proxy.size.height))
 
-                    VStack(spacing: 10) {
-                        ForEach(orderedProducts) { product in
-                            PricingCard(
-                                product: product,
-                                isSelected: selectedProductID == product.id,
-                                tag: tag(for: product.id),
-                                subtitle: subtitle(for: product.id),
-                                trailingBadge: trailingBadge(for: product.id)
-                            ) {
-                                selectedProductID = product.id
-                            }
-                        }
-                        if products.isEmpty {
-                            ProgressView().padding(.vertical, 14)
-                        }
-                    }
-                    .padding(.horizontal, 16)
-
-                    Text("Grounded in Bill W.'s original writings. Not affiliated with AA World Services. Not a substitute for professional help.")
-                        .font(.system(size: 9, design: .monospaced))
-                        .foregroundStyle(Color("SaddleBrown").opacity(0.55))
+                    inviteBody
+                        .font(.system(size: 17, design: .serif))
+                        .foregroundStyle(Color("LexiconText"))
+                        .lineSpacing(6)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 28)
-                        .padding(.top, 4)
-                        .frame(maxWidth: .infinity)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: 320)
+                        .padding(.horizontal, 20)
 
-                    Spacer(minLength: 4)
-                }
-            }
-
-            VStack(spacing: 4) {
-                Button(action: onStart) {
-                    Text("Start for Free")
-                        .font(.system(.headline, design: .serif))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color("AmberAccent"))
-                        .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
-
-                Button("Restore Purchases") {
-                    Task { try? await purchases.restorePurchases() }
-                }
-                .font(.system(.footnote, design: .serif))
-                .underline()
-                .foregroundStyle(Color("SaddleBrown"))
-                .padding(.vertical, 2)
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 6)
-            .padding(.bottom, 10)
-            .background(Color("ParchmentBackground"))
-        }
-    }
-
-    private var orderedProducts: [Product] {
-        let order = ["weekly", "monthly", "yearly"]
-        return products.sorted { lhs, rhs in
-            let li = order.firstIndex(where: { lhs.id.contains($0) }) ?? 99
-            let ri = order.firstIndex(where: { rhs.id.contains($0) }) ?? 99
-            return li < ri
-        }
-    }
-
-    private func subtitle(for productID: String) -> String {
-        if productID.contains("weekly") { return "Billed every week" }
-        if productID.contains("monthly") { return "Billed every month" }
-        if productID.contains("yearly") { return "Just $5/month · Save 62%" }
-        return ""
-    }
-
-    private func tag(for productID: String) -> PricingCardTag? {
-        productID.contains("monthly") ? .mostPopular : nil
-    }
-
-    private func trailingBadge(for productID: String) -> String? {
-        if productID.contains("weekly") { return "/ week" }
-        if productID.contains("monthly") { return "/ month" }
-        if productID.contains("yearly") { return "Save $95.89" }
-        return nil
-    }
-}
-
-private struct FreeConversationsBanner: View {
-    var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            Text("🕯️").font(.system(size: 22))
-            VStack(alignment: .leading, spacing: 2) {
-                Text("3 Free Conversations Included")
-                    .font(.system(.subheadline, design: .serif, weight: .semibold))
-                    .foregroundStyle(Color("AmberAccent"))
-                Text("Try Bill right now — no payment needed.")
-                    .font(.system(size: 12, design: .serif))
-                    .foregroundStyle(Color("LexiconText").opacity(0.8))
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(Color("AmberAccent").opacity(0.1))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color("AmberAccent").opacity(0.35), lineWidth: 1)
-        )
-    }
-}
-
-enum PricingCardTag {
-    case mostPopular
-}
-
-struct PricingCard: View {
-    let product: Product
-    let isSelected: Bool
-    let tag: PricingCardTag?
-    let subtitle: String
-    let trailingBadge: String?
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 0) {
-                if tag == .mostPopular {
-                    Text("MOST POPULAR")
-                        .font(.system(size: 9, weight: .bold, design: .monospaced))
-                        .tracking(1.1)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Color("AmberAccent"))
-                        .clipShape(Capsule())
-                        .padding(.leading, 10)
-                        .offset(y: 6)
-                        .zIndex(1)
-                }
-
-                HStack(alignment: .center, spacing: 10) {
-                    ZStack {
-                        Circle()
-                            .stroke(isSelected ? Color("AmberAccent") : Color("AgedGold"), lineWidth: 1.5)
-                            .frame(width: 20, height: 20)
-                        if isSelected {
-                            Circle()
-                                .fill(Color("AmberAccent"))
-                                .frame(width: 10, height: 10)
-                        }
+                    Button(action: onStart) {
+                        Text("Sit Down with Bill")
+                            .font(.system(size: 20, weight: .bold, design: .serif))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 15)
+                            .background(Color("AmberAccent"))
+                            .clipShape(Capsule())
                     }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 4)
 
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(product.displayName)
-                            .font(.system(.subheadline, design: .serif, weight: .semibold))
-                            .foregroundStyle(Color("LexiconText"))
-                        Text(subtitle)
-                            .font(.system(size: 11, design: .serif))
-                            .foregroundStyle(Color("SaddleBrown"))
-                            .lineLimit(1)
+                    VStack(spacing: 3) {
+                        Text("3 conversations free. No card required.")
+                        Text("Grounded in Bill W.'s public domain writings (1939).")
+                        Text("Not affiliated with AAWS.")
                     }
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(Color("SaddleBrown").opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 18)
 
-                    Spacer(minLength: 4)
-
-                    VStack(alignment: .trailing, spacing: 0) {
-                        Text(product.displayPrice)
-                            .font(.system(.headline, design: .serif, weight: .bold))
-                            .foregroundStyle(Color("AmberAccent"))
-                        if let trailingBadge {
-                            Text(trailingBadge)
-                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                                .foregroundStyle(Color("AmberAccent").opacity(0.85))
-                        }
-                    }
+                    Spacer(minLength: 0)
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(minHeight: proxy.size.height)
             }
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(isSelected ? Color("AmberAccent").opacity(0.08) : Color("CardWhite"))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(isSelected ? Color("AmberAccent") : Color("AgedGold").opacity(0.4),
-                            lineWidth: isSelected ? 2 : 1)
-            )
         }
-        .buttonStyle(.plain)
+    }
+
+    private var inviteBody: Text {
+        Text("This isn't a chatbot. It's Bill.\n\n")
+        + Text("Every word he speaks comes from his own hand — the 1939 Big Book, his letters, his talks. The same man who sat across kitchen tables at 3am with strangers. Who knew what it felt like to want a drink more than anything in the world. And found a way through anyway.\n\n")
+        + Text("Ask him about that resentment you can't shake. Tell him where you're stuck on Step 4. Say the thing you haven't said out loud yet.").italic()
+        + Text("\n\nHe's heard it all. And he has time for you.")
+    }
+
+    private func candleSize(for screenHeight: CGFloat) -> CGFloat {
+        if screenHeight < 700 { return 60 }
+        if screenHeight < 820 { return 74 }
+        return 84
     }
 }
 

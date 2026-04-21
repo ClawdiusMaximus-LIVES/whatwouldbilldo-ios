@@ -92,7 +92,8 @@ private struct ChatContent: View {
                                 if message.role == "bill" {
                                     BillMessageView(
                                         message: message,
-                                        enableTypewriter: isLastBillMessage(message)
+                                        revealCount: viewModel.revealProgress[message.id],
+                                        onTap: { viewModel.skipReveal(for: message.id) }
                                     )
                                 } else {
                                     UserMessageView(message: message)
@@ -129,7 +130,7 @@ private struct ChatContent: View {
 
             MessageInputView(
                 text: $viewModel.inputText,
-                isSending: viewModel.isLoading,
+                isSending: viewModel.isLoading || viewModel.isAnimatingReveal,
                 isFocused: $isInputFocused,
                 onSend: { text in
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -199,11 +200,6 @@ private struct ChatContent: View {
             }
             .padding(.top, 10)
         }
-    }
-
-    private func isLastBillMessage(_ message: DisplayMessage) -> Bool {
-        guard message.role == "bill" else { return false }
-        return viewModel.messages.last(where: { $0.role == "bill" })?.id == message.id
     }
 
     private func scrollToBottom(proxy: ScrollViewProxy, anchor: String? = nil) {

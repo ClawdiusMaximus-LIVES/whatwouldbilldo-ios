@@ -38,7 +38,7 @@ struct PaywallSheet: View {
                             .multilineTextAlignment(.center)
                             .padding(.top, -6)
 
-                        Text("You've used your 3 free conversations. A subscription keeps the light on.")
+                        Text("Your 3 free conversations are up. Keep his light on.")
                             .font(.system(.subheadline, design: .serif))
                             .italic()
                             .foregroundStyle(Color("ParchmentBackground").opacity(0.7))
@@ -129,6 +129,7 @@ struct PaywallSheet: View {
             .padding(.top, 16)
             .padding(.trailing, 16)
         }
+        .interactiveDismissDisabled(true)
         .task {
             if purchases.products.isEmpty { await purchases.loadProducts() }
             if selectedProductID == nil,
