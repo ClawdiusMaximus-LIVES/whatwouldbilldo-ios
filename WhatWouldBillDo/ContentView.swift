@@ -29,9 +29,29 @@ struct ContentView: View {
                         }
                 }
                 .tint(Color("AmberAccent"))
+                .task {
+                    await setupNotificationsOnce()
+                }
+                .onChange(of: appState.sobrietyDate) { _, newValue in
+                    Task { await NotificationManager.shared.scheduleMilestones(sobrietyDate: newValue) }
+                }
             }
         }
         .background(Color("ParchmentBackground").ignoresSafeArea())
+    }
+
+    private func setupNotificationsOnce() async {
+        let notifications = NotificationManager.shared
+        await notifications.requestPermissionIfNeeded()
+        guard await notifications.isAuthorized else { return }
+
+        var previewBody: String?
+        if let data = UserDefaults.standard.data(forKey: "dailyReflectionCache"),
+           let cache = try? JSONDecoder().decode(DailyReflectionCache.self, from: data) {
+            previewBody = cache.passage
+        }
+        await notifications.scheduleDailyReflection(bodyPreview: previewBody)
+        await notifications.scheduleMilestones(sobrietyDate: appState.sobrietyDate)
     }
 }
 

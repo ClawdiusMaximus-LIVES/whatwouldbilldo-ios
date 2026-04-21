@@ -99,6 +99,7 @@ private struct IntroScreen: View {
                     .font(.system(size: 80))
                     .shadow(color: Color("AmberAccent").opacity(0.5), radius: 16, y: 4)
                     .padding(.vertical, 12)
+                    .accessibilityHidden(true)
 
                 Text("My name is Bill W.")
                     .font(.system(size: 32, weight: .bold, design: .serif))
