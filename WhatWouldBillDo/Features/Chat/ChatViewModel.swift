@@ -51,7 +51,12 @@ final class ChatViewModel {
         let history = buildHistory()
 
         do {
-            let response = try await api.askBill(message: text, history: history, userName: appState.userName)
+            let response = try await api.askBill(
+                message: text,
+                history: history,
+                userName: appState.userName,
+                monthlyCount: appState.monthlyMessageCount
+            )
 
             if response.crisis {
                 isLoading = false
@@ -85,6 +90,7 @@ final class ChatViewModel {
             if !appState.isSubscribed {
                 appState.freeConvosUsed += 1
             }
+            appState.monthlyMessageCount += 1
         } catch {
             errorMessage = (error as? APIError)?.errorDescription ?? error.localizedDescription
         }

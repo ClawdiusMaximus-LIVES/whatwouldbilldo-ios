@@ -9,6 +9,7 @@ import SwiftData
 @main
 struct WhatWouldBillDoApp: App {
     @State private var appState = AppState()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
@@ -17,5 +18,10 @@ struct WhatWouldBillDoApp: App {
                 .preferredColorScheme(.light)
         }
         .modelContainer(for: [Conversation.self, Message.self])
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                appState.checkAndResetMonthlyCount()
+            }
+        }
     }
 }

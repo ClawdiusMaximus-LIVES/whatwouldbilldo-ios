@@ -52,7 +52,7 @@ final class APIClient: @unchecked Sendable {
         self.session = URLSession(configuration: config)
     }
 
-    func askBill(message: String, history: [[String: String]], userName: String?) async throws -> AskResponse {
+    func askBill(message: String, history: [[String: String]], userName: String?, monthlyCount: Int) async throws -> AskResponse {
         let trimmed = userName?.trimmingCharacters(in: .whitespacesAndNewlines)
         let req = AskRequest(
             message: message,
@@ -60,7 +60,7 @@ final class APIClient: @unchecked Sendable {
             user_name: (trimmed?.isEmpty == false) ? trimmed : nil
         )
         let data: Data = try encoder.encode(req)
-        return try await post("/ask", body: data)
+        return try await post("/ask", body: data, extraHeaders: ["X-Monthly-Count": String(monthlyCount)])
     }
 
     func checkHealth() async throws -> Bool {
@@ -100,10 +100,13 @@ final class APIClient: @unchecked Sendable {
         return try await perform(request)
     }
 
-    private func post<T: Decodable>(_ path: String, body: Data) async throws -> T {
+    private func post<T: Decodable>(_ path: String, body: Data, extraHeaders: [String: String] = [:]) async throws -> T {
         var request = try makeRequest(path: path)
         request.httpMethod = "POST"
         request.httpBody = body
+        for (key, value) in extraHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
         return try await perform(request)
     }
 

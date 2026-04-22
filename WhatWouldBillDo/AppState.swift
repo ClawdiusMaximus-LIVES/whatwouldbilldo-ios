@@ -10,6 +10,8 @@ final class AppState {
         static let isSubscribed = "isSubscribed"
         static let needsSelection = "needsSelection"
         static let userName = "userName"
+        static let monthlyMessageCount = "monthlyMessageCount"
+        static let monthlyWindowStart = "monthlyWindowStart"
         // freeConvosUsed is stored in iCloud Keychain via KeychainManager so it
         // survives delete + reinstall. Do not move it back to UserDefaults.
     }
@@ -44,6 +46,14 @@ final class AppState {
         didSet { UserDefaults.standard.set(userName, forKey: Keys.userName) }
     }
 
+    var monthlyMessageCount: Int {
+        didSet { UserDefaults.standard.set(monthlyMessageCount, forKey: Keys.monthlyMessageCount) }
+    }
+
+    var monthlyWindowStart: Date {
+        didSet { UserDefaults.standard.set(monthlyWindowStart, forKey: Keys.monthlyWindowStart) }
+    }
+
     var selectedTab: Int = 0
     var pendingChatPrompt: String? = nil
 
@@ -66,10 +76,28 @@ final class AppState {
         self.isSubscribed = defaults.bool(forKey: Keys.isSubscribed)
         self.needsSelection = defaults.stringArray(forKey: Keys.needsSelection) ?? []
         self.userName = defaults.string(forKey: Keys.userName) ?? ""
+        self.monthlyMessageCount = defaults.integer(forKey: Keys.monthlyMessageCount)
+        if let storedWindow = defaults.object(forKey: Keys.monthlyWindowStart) as? Date {
+            self.monthlyWindowStart = storedWindow
+        } else {
+            let now = Date()
+            defaults.set(now, forKey: Keys.monthlyWindowStart)
+            self.monthlyWindowStart = now
+        }
     }
 
     func canSendMessage() -> Bool {
-        isSubscribed || freeConvosUsed < 3
+        checkAndResetMonthlyCount()
+        return isSubscribed || freeConvosUsed < 3
+    }
+
+    /// Roll the monthly counter window every 30 days. Called on canSendMessage and on scene-active.
+    func checkAndResetMonthlyCount() {
+        let windowEnd = Calendar.current.date(byAdding: .day, value: 30, to: monthlyWindowStart) ?? monthlyWindowStart
+        if Date() > windowEnd {
+            monthlyMessageCount = 0
+            monthlyWindowStart = Date()
+        }
     }
 
     var daysSober: Int? {
