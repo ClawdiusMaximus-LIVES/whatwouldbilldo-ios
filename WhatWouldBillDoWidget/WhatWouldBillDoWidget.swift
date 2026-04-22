@@ -70,15 +70,15 @@ private struct SmallWidgetView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(String(entry.passage.prefix(70)))
-                .font(.system(size: 11, design: .serif))
+            Text(String(entry.passage.prefix(110)))
+                .font(.system(size: 13, design: .serif))
                 .foregroundStyle(Color("LexiconText"))
-                .lineLimit(5)
+                .lineLimit(6)
                 .multilineTextAlignment(.leading)
-                .minimumScaleFactor(0.9)
+                .minimumScaleFactor(0.85)
             Spacer(minLength: 2)
             Text("— Bill W.")
-                .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                .font(.system(size: 10, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Color("AmberAccent"))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -106,13 +106,13 @@ private struct MediumWidgetView: View {
                     .foregroundStyle(Color("AmberAccent"))
             }
             Text(String(entry.passage.prefix(130)))
-                .font(.system(size: 12, design: .serif))
+                .font(.system(size: 13, design: .serif))
                 .foregroundStyle(Color("LexiconText"))
                 .lineLimit(4)
-                .minimumScaleFactor(0.9)
+                .minimumScaleFactor(0.85)
             if !entry.reflection.isEmpty {
-                Text(String(entry.reflection.prefix(50)))
-                    .font(.system(size: 10, design: .serif))
+                Text(String(entry.reflection.prefix(55)))
+                    .font(.system(size: 11, design: .serif))
                     .italic()
                     .foregroundStyle(Color("SaddleBrown"))
                     .lineLimit(2)
