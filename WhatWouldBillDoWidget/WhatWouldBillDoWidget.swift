@@ -69,20 +69,23 @@ private struct SmallWidgetView: View {
     let entry: ReflectionEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(String(entry.passage.prefix(80)))
-                .font(.system(size: 12, design: .serif))
+        VStack(alignment: .leading, spacing: 5) {
+            Text(String(entry.passage.prefix(70)))
+                .font(.system(size: 11, design: .serif))
                 .foregroundStyle(Color("LexiconText"))
                 .lineLimit(5)
                 .multilineTextAlignment(.leading)
+                .minimumScaleFactor(0.9)
             Spacer(minLength: 2)
             Text("— Bill W.")
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                .font(.system(size: 9, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Color("AmberAccent"))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
         .containerBackground(for: .widget) {
-            Color("ParchmentBackground")
+            WidgetParchmentBackground(imageName: "widget-parchment-small")
         }
     }
 }
@@ -91,7 +94,7 @@ private struct MediumWidgetView: View {
     let entry: ReflectionEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text("Today")
                     .font(.system(size: 10, weight: .bold, design: .monospaced))
@@ -102,13 +105,14 @@ private struct MediumWidgetView: View {
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Color("AmberAccent"))
             }
-            Text(String(entry.passage.prefix(150)))
-                .font(.system(size: 13, design: .serif))
+            Text(String(entry.passage.prefix(130)))
+                .font(.system(size: 12, design: .serif))
                 .foregroundStyle(Color("LexiconText"))
                 .lineLimit(4)
+                .minimumScaleFactor(0.9)
             if !entry.reflection.isEmpty {
-                Text(String(entry.reflection.prefix(60)))
-                    .font(.system(size: 11, design: .serif))
+                Text(String(entry.reflection.prefix(50)))
+                    .font(.system(size: 10, design: .serif))
                     .italic()
                     .foregroundStyle(Color("SaddleBrown"))
                     .lineLimit(2)
@@ -116,9 +120,29 @@ private struct MediumWidgetView: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 4)
         .containerBackground(for: .widget) {
-            Color("ParchmentBackground")
+            WidgetParchmentBackground(imageName: "widget-parchment-medium")
         }
+    }
+}
+
+/// Tattered-parchment widget background. Drop a PNG named `imageName` into the
+/// widget target's asset catalog and it'll render inside iOS's rounded-corner
+/// clip with small padding so the torn edges stay visible. If the asset isn't
+/// present, the solid ParchmentBackground color renders as a fallback.
+private struct WidgetParchmentBackground: View {
+    let imageName: String
+
+    var body: some View {
+        Color("ParchmentBackground")
+            .overlay(
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(2)
+            )
     }
 }
 
