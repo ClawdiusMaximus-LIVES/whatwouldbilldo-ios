@@ -552,7 +552,7 @@ private struct InvitationScreen: View {
             return LayoutMetrics(candleSize: 64, candleTopPadding: 0,
                                  verticalSpacing: 14, bodyFont: 16, bodyLineSpacing: 4)
         }
-        return LayoutMetrics(candleSize: 76, candleTopPadding: 6,
+        return LayoutMetrics(candleSize: 84, candleTopPadding: 6,
                              verticalSpacing: 18, bodyFont: 17, bodyLineSpacing: 5)
     }
 }

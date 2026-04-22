@@ -179,7 +179,7 @@ private struct ChatContent: View {
 
     private var emptyState: some View {
         VStack(spacing: 18) {
-            AnimatedCandle(size: 60)
+            AnimatedCandle(size: 72)
 
             VStack(spacing: 6) {
                 Text("Bill is listening.")
