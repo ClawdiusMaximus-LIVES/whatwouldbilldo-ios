@@ -159,6 +159,7 @@ private struct ChatContent: View {
                     Spacer()
                     let isEmpty = viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     Button("Done") { isInputFocused = false }
+                        .buttonStyle(.plain)
                         .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(Color("AmberAccent"))
                         .opacity(isEmpty ? 1 : 0)
@@ -178,7 +179,7 @@ private struct ChatContent: View {
 
     private var emptyState: some View {
         VStack(spacing: 18) {
-            AnimatedCandle(size: 48)
+            AnimatedCandle(size: 60)
 
             VStack(spacing: 6) {
                 Text("Bill is listening.")
