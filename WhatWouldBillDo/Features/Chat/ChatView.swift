@@ -155,13 +155,14 @@ private struct ChatContent: View {
                 }
             )
             .toolbar {
-                if viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button("Done") { isInputFocused = false }
-                            .font(.system(.subheadline, design: .serif))
-                            .foregroundStyle(Color("AmberAccent"))
-                    }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    let isEmpty = viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    Button("Done") { isInputFocused = false }
+                        .font(.system(.subheadline, design: .serif))
+                        .foregroundStyle(Color("AmberAccent"))
+                        .opacity(isEmpty ? 1 : 0)
+                        .allowsHitTesting(isEmpty)
                 }
             }
         }

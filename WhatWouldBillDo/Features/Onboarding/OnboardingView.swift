@@ -545,15 +545,15 @@ private struct InvitationScreen: View {
 
     private func layoutMetrics(for screenHeight: CGFloat) -> LayoutMetrics {
         if screenHeight < 700 {
-            return LayoutMetrics(candleSize: 50, candleTopPadding: 0,
-                                 verticalSpacing: 10, bodyFont: 14, bodyLineSpacing: 2)
+            return LayoutMetrics(candleSize: 52, candleTopPadding: 0,
+                                 verticalSpacing: 10, bodyFont: 15, bodyLineSpacing: 3)
         }
         if screenHeight < 820 {
-            return LayoutMetrics(candleSize: 60, candleTopPadding: 0,
-                                 verticalSpacing: 14, bodyFont: 15, bodyLineSpacing: 3)
+            return LayoutMetrics(candleSize: 64, candleTopPadding: 0,
+                                 verticalSpacing: 14, bodyFont: 16, bodyLineSpacing: 4)
         }
-        return LayoutMetrics(candleSize: 70, candleTopPadding: 4,
-                             verticalSpacing: 16, bodyFont: 16, bodyLineSpacing: 4)
+        return LayoutMetrics(candleSize: 76, candleTopPadding: 6,
+                             verticalSpacing: 18, bodyFont: 17, bodyLineSpacing: 5)
     }
 }
 
