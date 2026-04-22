@@ -136,7 +136,7 @@ private struct WidgetParchmentBackground: View {
     let imageName: String
 
     var body: some View {
-        Color.clear
+        Rectangle().fill(.ultraThinMaterial)
             .overlay(
                 Image(imageName)
                     .resizable()
