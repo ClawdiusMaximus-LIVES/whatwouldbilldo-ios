@@ -20,9 +20,14 @@ struct ChatView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Text("🕯️")
-                        .font(.system(size: 20))
-                        .accessibilityHidden(true)
+                    Button {
+                        viewModel?.showPaywall = true
+                    } label: {
+                        Text("🕯️")
+                            .font(.system(size: 20))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Subscribe")
                 }
                 ToolbarItem(placement: .principal) {
                     Text("Ask Bill")
@@ -32,14 +37,20 @@ struct ChatView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     if !appState.isSubscribed {
                         let remaining = max(0, 3 - appState.freeConvosUsed)
-                        Text("\(remaining) left")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .foregroundStyle(Color("AmberAccent"))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .overlay(
-                                Capsule().stroke(Color("AmberAccent").opacity(0.6), lineWidth: 1)
-                            )
+                        Button {
+                            viewModel?.showPaywall = true
+                        } label: {
+                            Text("\(remaining) left")
+                                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                .foregroundStyle(Color("AmberAccent"))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .overlay(
+                                    Capsule().stroke(Color("AmberAccent").opacity(0.6), lineWidth: 1)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("\(remaining) free conversations remaining. Tap to subscribe.")
                     }
                 }
             }
@@ -144,11 +155,13 @@ private struct ChatContent: View {
                 }
             )
             .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Done") { isInputFocused = false }
-                        .font(.system(.subheadline, design: .serif))
-                        .foregroundStyle(Color("AmberAccent"))
+                if viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { isInputFocused = false }
+                            .font(.system(.subheadline, design: .serif))
+                            .foregroundStyle(Color("AmberAccent"))
+                    }
                 }
             }
         }

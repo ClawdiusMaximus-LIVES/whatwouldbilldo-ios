@@ -481,35 +481,34 @@ private struct InvitationScreen: View {
 
     var body: some View {
         GeometryReader { proxy in
+            let layout = layoutMetrics(for: proxy.size.height)
             ScrollView {
-                VStack(spacing: 22) {
-                    Spacer(minLength: 16)
-
-                    AnimatedCandle(size: candleSize(for: proxy.size.height))
+                VStack(spacing: layout.verticalSpacing) {
+                    AnimatedCandle(size: layout.candleSize)
+                        .padding(.top, layout.candleTopPadding)
 
                     inviteBody
-                        .font(.system(size: 17, design: .serif))
+                        .font(.system(size: layout.bodyFont, design: .serif))
                         .foregroundStyle(Color("LexiconText"))
-                        .lineSpacing(6)
+                        .lineSpacing(layout.bodyLineSpacing)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: 320)
+                        .frame(maxWidth: 340)
                         .padding(.horizontal, 20)
 
                     Button(action: onStart) {
                         Text("Sit Down with Bill")
-                            .font(.system(size: 20, weight: .bold, design: .serif))
+                            .font(.system(size: 19, weight: .bold, design: .serif))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 15)
+                            .padding(.vertical, 13)
                             .background(Color("AmberAccent"))
                             .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
                     .padding(.horizontal, 24)
-                    .padding(.top, 4)
 
-                    VStack(spacing: 3) {
+                    VStack(spacing: 2) {
                         Text("3 conversations free. No card required.")
                         Text("Grounded in Bill W.'s public domain writings (1939).")
                         Text("Not affiliated with AAWS.")
@@ -518,9 +517,7 @@ private struct InvitationScreen: View {
                     .foregroundStyle(Color("SaddleBrown").opacity(0.7))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 18)
-
-                    Spacer(minLength: 0)
+                    .padding(.bottom, 8)
                 }
                 .frame(minHeight: proxy.size.height)
             }
@@ -538,10 +535,25 @@ private struct InvitationScreen: View {
         + Text("\n\nHe's heard it all. And he has time for you.")
     }
 
-    private func candleSize(for screenHeight: CGFloat) -> CGFloat {
-        if screenHeight < 700 { return 60 }
-        if screenHeight < 820 { return 74 }
-        return 84
+    private struct LayoutMetrics {
+        let candleSize: CGFloat
+        let candleTopPadding: CGFloat
+        let verticalSpacing: CGFloat
+        let bodyFont: CGFloat
+        let bodyLineSpacing: CGFloat
+    }
+
+    private func layoutMetrics(for screenHeight: CGFloat) -> LayoutMetrics {
+        if screenHeight < 700 {
+            return LayoutMetrics(candleSize: 50, candleTopPadding: 0,
+                                 verticalSpacing: 10, bodyFont: 14, bodyLineSpacing: 2)
+        }
+        if screenHeight < 820 {
+            return LayoutMetrics(candleSize: 60, candleTopPadding: 0,
+                                 verticalSpacing: 14, bodyFont: 15, bodyLineSpacing: 3)
+        }
+        return LayoutMetrics(candleSize: 70, candleTopPadding: 4,
+                             verticalSpacing: 16, bodyFont: 16, bodyLineSpacing: 4)
     }
 }
 
