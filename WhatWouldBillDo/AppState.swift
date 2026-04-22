@@ -7,10 +7,11 @@ final class AppState {
     private enum Keys {
         static let isOnboardingComplete = "isOnboardingComplete"
         static let sobrietyDate = "sobrietyDate"
-        static let freeConvosUsed = "freeConvosUsed"
         static let isSubscribed = "isSubscribed"
         static let needsSelection = "needsSelection"
         static let userName = "userName"
+        // freeConvosUsed is stored in iCloud Keychain via KeychainManager so it
+        // survives delete + reinstall. Do not move it back to UserDefaults.
     }
 
     var isOnboardingComplete: Bool {
@@ -28,7 +29,7 @@ final class AppState {
     }
 
     var freeConvosUsed: Int {
-        didSet { UserDefaults.standard.set(freeConvosUsed, forKey: Keys.freeConvosUsed) }
+        didSet { KeychainManager.saveFreeConvosUsed(freeConvosUsed) }
     }
 
     var isSubscribed: Bool {
@@ -50,7 +51,18 @@ final class AppState {
         let defaults = UserDefaults.standard
         self.isOnboardingComplete = defaults.bool(forKey: Keys.isOnboardingComplete)
         self.sobrietyDate = defaults.object(forKey: Keys.sobrietyDate) as? Date
-        self.freeConvosUsed = defaults.integer(forKey: Keys.freeConvosUsed)
+        // One-time migration: pre-Keychain builds stored freeConvosUsed in UserDefaults.
+        // If Keychain is empty but UserDefaults has a value, lift it into the Keychain and clear the old key.
+        var initialFreeConvos = KeychainManager.loadFreeConvosUsed()
+        if initialFreeConvos == 0, defaults.object(forKey: "freeConvosUsed") != nil {
+            let legacy = defaults.integer(forKey: "freeConvosUsed")
+            if legacy > 0 {
+                KeychainManager.saveFreeConvosUsed(legacy)
+                initialFreeConvos = legacy
+            }
+            defaults.removeObject(forKey: "freeConvosUsed")
+        }
+        self.freeConvosUsed = initialFreeConvos
         self.isSubscribed = defaults.bool(forKey: Keys.isSubscribed)
         self.needsSelection = defaults.stringArray(forKey: Keys.needsSelection) ?? []
         self.userName = defaults.string(forKey: Keys.userName) ?? ""
