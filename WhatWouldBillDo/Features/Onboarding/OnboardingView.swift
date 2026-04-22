@@ -149,9 +149,9 @@ private struct IntroScreen: View {
     /// Candle shrinks on short devices so everything fits without scrolling.
     private func candleSize(for screenHeight: CGFloat) -> CGFloat {
         // iPhone SE / mini ~667pt; Pro Max ~956pt
-        if screenHeight < 700 { return 54 }
-        if screenHeight < 820 { return 64 }
-        return 74
+        if screenHeight < 700 { return 58 }
+        if screenHeight < 820 { return 70 }
+        return 84
     }
 }
 
@@ -545,14 +545,14 @@ private struct InvitationScreen: View {
 
     private func layoutMetrics(for screenHeight: CGFloat) -> LayoutMetrics {
         if screenHeight < 700 {
-            return LayoutMetrics(candleSize: 52, candleTopPadding: 0,
+            return LayoutMetrics(candleSize: 56, candleTopPadding: 0,
                                  verticalSpacing: 10, bodyFont: 15, bodyLineSpacing: 3)
         }
         if screenHeight < 820 {
-            return LayoutMetrics(candleSize: 64, candleTopPadding: 0,
+            return LayoutMetrics(candleSize: 70, candleTopPadding: 0,
                                  verticalSpacing: 14, bodyFont: 16, bodyLineSpacing: 4)
         }
-        return LayoutMetrics(candleSize: 84, candleTopPadding: 6,
+        return LayoutMetrics(candleSize: 96, candleTopPadding: 6,
                              verticalSpacing: 18, bodyFont: 17, bodyLineSpacing: 5)
     }
 }
