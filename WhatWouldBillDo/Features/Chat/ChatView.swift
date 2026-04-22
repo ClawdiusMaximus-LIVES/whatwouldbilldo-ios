@@ -128,6 +128,7 @@ private struct ChatContent: View {
                     .padding(.vertical, 16)
                 }
                 .scrollDismissesKeyboard(.interactively)
+                .onTapGesture { isInputFocused = false }
                 .onChange(of: viewModel.messages) { _, _ in scrollToBottom(proxy: proxy) }
                 .onChange(of: viewModel.isLoading) { _, loading in
                     if loading { scrollToBottom(proxy: proxy, anchor: "typing") }
@@ -154,18 +155,6 @@ private struct ChatContent: View {
                     Task { await viewModel.sendMessage(text) }
                 }
             )
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    let isEmpty = viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    Button("Done") { isInputFocused = false }
-                        .buttonStyle(.plain)
-                        .font(.system(.subheadline, design: .serif))
-                        .foregroundStyle(Color("AmberAccent"))
-                        .opacity(isEmpty ? 1 : 0)
-                        .allowsHitTesting(isEmpty)
-                }
-            }
         }
         .background(Color("ParchmentBackground").ignoresSafeArea())
         .sheet(isPresented: $viewModel.showPaywall) { PaywallSheet() }
