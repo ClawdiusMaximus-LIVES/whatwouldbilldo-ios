@@ -13,9 +13,14 @@ struct HTMLAnimationView: UIViewRepresentable {
         config.allowsInlineMediaPlayback = true
 
         let webView = WKWebView(frame: .zero, configuration: config)
+        let parchment = UIColor(red: 0xF5/255.0, green: 0xED/255.0, blue: 0xD6/255.0, alpha: 1.0)
         webView.isOpaque = false
-        webView.backgroundColor = .clear
-        webView.scrollView.backgroundColor = .clear
+        webView.backgroundColor = parchment
+        webView.scrollView.backgroundColor = parchment
+        webView.scrollView.isOpaque = false
+        if #available(iOS 15.0, *) {
+            webView.underPageBackgroundColor = parchment
+        }
         webView.scrollView.isScrollEnabled = false
         webView.scrollView.bounces = false
         webView.scrollView.alwaysBounceVertical = false
