@@ -6,7 +6,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #000;
+    background: transparent;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -15,6 +15,7 @@
     padding: 20px;
   }
   .wrap {
+    position: relative;
     width: 100%;
     max-width: 1400px;
   }
@@ -25,7 +26,7 @@
     cursor: pointer;
   }
   .btn {
-    display: block;
+    display: none !important;
     margin: 14px auto 0;
     background: transparent;
     border: 1px solid #555;
@@ -42,6 +43,41 @@
 <body>
 <div class="wrap">
   <canvas id="c"></canvas>
+  <div class="passage" id="passage">
+    <div class="quote">"Half measures availed us nothing."</div>
+    <div class="attrib">— Bill W., Alcoholics Anonymous (1939)</div>
+  </div>
+  <style>
+    .passage {
+      position: absolute;
+      top: 50%;
+      left: 16%;
+      right: 16%;
+      transform: translateY(-50%);
+      text-align: center;
+      color: #2C1810;
+      opacity: 0;
+      animation: fadeInPassage 1.2s ease-out 1.8s forwards;
+      pointer-events: none;
+    }
+    .passage .quote {
+      font-family: Georgia, "EB Garamond", "Times New Roman", serif;
+      font-style: italic;
+      font-size: 64px;
+      line-height: 1.25;
+      margin-bottom: 36px;
+    }
+    .passage .attrib {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 26px;
+      color: #8B4513;
+      letter-spacing: 2px;
+    }
+    @keyframes fadeInPassage {
+      from { opacity: 0; transform: translateY(-46%); }
+      to   { opacity: 1; transform: translateY(-50%); }
+    }
+  </style>
   <button class="btn" onclick="replay()">&#9654; Replay</button>
 </div>
 <script>
