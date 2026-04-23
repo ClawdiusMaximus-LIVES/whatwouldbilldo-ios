@@ -8,7 +8,7 @@ struct OnboardingView: View {
     @State private var sobrietyDate: Date = Calendar.current.date(byAdding: .year, value: -1, to: Date()) ?? Date()
     @State private var sobrietyDateWasSet: Bool = false
 
-    private let totalScreens = 7
+    private let totalScreens = 6
 
     var body: some View {
         ZStack {
@@ -35,10 +35,8 @@ struct OnboardingView: View {
                         .tag(3)
                     FreeFeaturesScreen(onContinue: advance)
                         .tag(4)
-                    FreeFeaturesScreenV2(onContinue: advance)
-                        .tag(5)
                     InvitationScreen(userName: appState.userName, onStart: completeOnboarding)
-                        .tag(6)
+                        .tag(5)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.3), value: currentIndex)
@@ -498,11 +496,29 @@ private struct FreeFeaturesScreen: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
 
-                    // Daily reflection: animated scroll unrolling + caption
+                    // Daily reflection — static scroll banner with the iconic quote
+                    // fading in. Pure SwiftUI; the prior WKWebView path rendered
+                    // opaque-black on iOS 17+ no matter what we tried.
                     VStack(spacing: 8) {
-                        HTMLAnimationView(resourceName: "scroll_unroll", resourceExtension: "html")
-                            .aspectRatio(3.0/2.0, contentMode: .fit)
-                            .frame(maxWidth: .infinity)
+                        ZStack {
+                            Image("scroll-banner")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+
+                            VStack(spacing: 8) {
+                                Text("\u{201C}Keep coming back.\nOne day at a time.\u{201D}")
+                                    .font(.system(.title3, design: .serif))
+                                    .italic()
+                                    .foregroundStyle(Color("LexiconText"))
+                                    .multilineTextAlignment(.center)
+                                    .lineSpacing(2)
+                                Text("— BILL W., ALCOHOLICS ANONYMOUS (1939)")
+                                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                                    .tracking(1.2)
+                                    .foregroundStyle(Color("SaddleBrown"))
+                            }
+                            .padding(.horizontal, 60)
+                        }
                         Text("A new passage each morning — with Bill's reflection on it.")
                             .font(.system(size: 13, design: .serif))
                             .italic()
@@ -583,107 +599,7 @@ private struct FreeFeaturesScreen: View {
     }
 }
 
-// MARK: Screen 6 — Free Features (V2 — pure SwiftUI, no WebView)
-
-private struct FreeFeaturesScreenV2: View {
-    let onContinue: () -> Void
-    @State private var revealQuote = false
-
-    var body: some View {
-        GeometryReader { proxy in
-            ScrollView {
-                VStack(spacing: 18) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Yours, every day. (v2)")
-                            .font(.system(size: 28, weight: .bold, design: .serif))
-                            .foregroundStyle(Color("LexiconText"))
-                            .fixedSize(horizontal: false, vertical: true)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Text("Native SwiftUI render — no WKWebView in the path.")
-                            .font(.system(size: 15, design: .serif))
-                            .italic()
-                            .foregroundStyle(Color("SaddleBrown"))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-
-                    ZStack {
-                        Image("scroll-banner")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-
-                        VStack(spacing: 8) {
-                            Text("\u{201C}Keep coming back.\nOne day at a time.\u{201D}")
-                                .font(.system(.title3, design: .serif))
-                                .italic()
-                                .foregroundStyle(Color("LexiconText"))
-                                .multilineTextAlignment(.center)
-                                .lineSpacing(2)
-                            Text("— BILL W., ALCOHOLICS ANONYMOUS (1939)")
-                                .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                                .tracking(1.2)
-                                .foregroundStyle(Color("SaddleBrown"))
-                        }
-                        .padding(.horizontal, 60)
-                        .opacity(revealQuote ? 1 : 0)
-                        .animation(.easeOut(duration: 0.9).delay(0.4), value: revealQuote)
-                    }
-                    .padding(.horizontal, 16)
-                    .onAppear { revealQuote = true }
-                    .onDisappear { revealQuote = false }
-
-                    Text("A new passage each morning — with Bill's reflection on it.")
-                        .font(.system(size: 13, design: .serif))
-                        .italic()
-                        .foregroundStyle(Color("SaddleBrown"))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
-
-                    HStack(alignment: .top, spacing: 14) {
-                        Image("widget-parchment-medium")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 120)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("ON YOUR HOME SCREEN")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
-                                .tracking(1.3)
-                                .foregroundStyle(Color("AmberAccent"))
-                            Text("A parchment widget. Keep Bill's words with you. One tap opens today's passage.")
-                                .font(.system(size: 13, design: .serif))
-                                .foregroundStyle(Color("LexiconText"))
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        Spacer(minLength: 0)
-                    }
-                    .padding(.horizontal, 20)
-
-                    Spacer(minLength: 8)
-                }
-                .frame(minHeight: proxy.size.height - 80)
-            }
-
-            VStack {
-                Spacer()
-                Button(action: onContinue) {
-                    Text("Continue")
-                        .font(.system(.headline, design: .serif))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color("AmberAccent"))
-                        .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 14)
-            }
-        }
-    }
-}
-
-// MARK: Screen 7 — Invitation
+// MARK: Screen 6 — Invitation
 
 private struct InvitationScreen: View {
     let userName: String
