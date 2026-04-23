@@ -496,36 +496,18 @@ private struct FreeFeaturesScreen: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
 
-                    // Daily reflection preview
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(spacing: 6) {
-                            Text("🕯️").font(.system(size: 12))
-                            Text("TODAY'S PASSAGE")
-                                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                .tracking(1.4)
-                                .foregroundStyle(Color("AmberAccent"))
-                        }
-                        Text("We are neither cocky nor are we afraid. That is our experience. That is how we react so long as we keep in fit spiritual condition.")
-                            .font(.system(size: 14, design: .serif))
-                            .italic()
-                            .foregroundStyle(Color("LexiconText"))
-                            .lineSpacing(3)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Rectangle().fill(Color("AgedGold").opacity(0.4)).frame(height: 1)
-                        Text("BILL'S REFLECTION")
-                            .font(.system(size: 9, weight: .bold, design: .monospaced))
-                            .tracking(1.4)
-                            .foregroundStyle(Color("AmberAccent"))
-                        Text("Today isn't won or lost all at once — it's won right now, in the next honest choice.")
+                    // Daily reflection: animated scroll unrolling + caption
+                    VStack(spacing: 8) {
+                        HTMLAnimationView(resourceName: "scroll_unroll", resourceExtension: "html")
+                            .aspectRatio(3.0/2.0, contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                        Text("A new passage each morning — with Bill's reflection on it.")
                             .font(.system(size: 13, design: .serif))
-                            .foregroundStyle(Color("LexiconText"))
+                            .italic()
+                            .foregroundStyle(Color("SaddleBrown"))
+                            .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RoundedRectangle(cornerRadius: 18).fill(Color("CardWhite")))
-                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color("AgedGold").opacity(0.35), lineWidth: 1))
-                    .shadow(color: .brown.opacity(0.08), radius: 6, y: 2)
                     .padding(.horizontal, 16)
 
                     HStack(alignment: .top, spacing: 14) {
