@@ -529,6 +529,34 @@ private struct FreeFeaturesScreen: View {
                     }
                     .padding(.horizontal, 20)
 
+                    // Reflection example — shows what Bill's morning reflection looks like.
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("BILL'S REFLECTION")
+                            .font(.system(size: 9, weight: .bold, design: .monospaced))
+                            .tracking(1.3)
+                            .foregroundStyle(Color("AmberAccent"))
+
+                        HStack(alignment: .top, spacing: 0) {
+                            Rectangle()
+                                .fill(Color("AmberAccent"))
+                                .frame(width: 3)
+                                .clipShape(RoundedRectangle(cornerRadius: 2))
+
+                            Text("Today isn't won or lost all at once — it's won right now, in the next honest choice. What am I willing to believe, just for today?")
+                                .font(.system(size: 13, design: .serif))
+                                .foregroundStyle(Color("LexiconText"))
+                                .lineSpacing(4)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(.leading, 12)
+                                .padding(.vertical, 4)
+                        }
+                    }
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 16).fill(Color("CardWhite")))
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color("AgedGold").opacity(0.3), lineWidth: 1))
+                    .padding(.horizontal, 16)
+
                     Spacer(minLength: 8)
                 }
                 .frame(minHeight: proxy.size.height - 80)
