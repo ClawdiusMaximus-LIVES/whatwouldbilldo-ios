@@ -21,6 +21,11 @@ final class PurchaseManager {
 
     private var updatesTask: Task<Void, Never>? = nil
 
+    /// Called every time the entitlement status is verified. WhatWouldBillDoApp
+    /// wires this to push the fresh flag into AppState — @Observable values
+    /// are NOT auto-refreshed when PurchaseManager writes to UserDefaults.
+    var onSubscriptionChange: (@MainActor (Bool) -> Void)?
+
     private init() {
         updatesTask = Task { [weak self] in
             for await result in Transaction.updates {
@@ -95,6 +100,7 @@ final class PurchaseManager {
 
     private func syncAppState() {
         UserDefaults.standard.set(isSubscribed, forKey: "isSubscribed")
+        onSubscriptionChange?(isSubscribed)
     }
 }
 

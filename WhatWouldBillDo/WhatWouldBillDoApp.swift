@@ -22,11 +22,23 @@ struct WhatWouldBillDoApp: App {
                         appState.selectedTab = 1
                     }
                 }
+                .task {
+                    // Push PurchaseManager's subscription state into @Observable AppState —
+                    // without this, the chat's "X left" counter and canSendMessage() stay
+                    // stuck on the stale value AppState read at init time.
+                    PurchaseManager.shared.onSubscriptionChange = { @MainActor [appState] isSubscribed in
+                        if appState.isSubscribed != isSubscribed {
+                            appState.isSubscribed = isSubscribed
+                        }
+                    }
+                    await PurchaseManager.shared.updateSubscriptionStatus()
+                }
         }
         .modelContainer(for: [Conversation.self, Message.self])
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 appState.checkAndResetMonthlyCount()
+                Task { await PurchaseManager.shared.updateSubscriptionStatus() }
             }
         }
     }

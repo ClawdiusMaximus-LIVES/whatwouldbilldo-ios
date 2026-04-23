@@ -119,34 +119,24 @@ struct DailyReflectionView: View {
     }
 
     private func passageCard(reflection: DailyReflectionResponse) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            ZStack(alignment: .topLeading) {
-                Text("\u{201C}")
-                    .font(.system(size: 60, weight: .bold, design: .serif))
-                    .foregroundStyle(Color("AmberAccent").opacity(0.28))
-                    .offset(x: -4, y: -12)
-
-                HStack(spacing: 6) {
-                    Text("🕯️").font(.system(size: 12))
-                    Text("TODAY'S PASSAGE")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .tracking(1.4)
-                        .foregroundStyle(Color("AmberAccent"))
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(Color("AmberAccent").opacity(0.12))
-                .clipShape(Capsule())
-                .padding(.top, 8)
-                .padding(.leading, 24)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Text("🕯️").font(.system(size: 12))
+                Text("TODAY'S PASSAGE")
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .tracking(1.4)
+                    .foregroundStyle(Color("AmberAccent"))
             }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(Color("AmberAccent").opacity(0.12))
+            .clipShape(Capsule())
 
             Text(reflection.passage)
                 .font(.system(size: 17, design: .serif))
                 .italic()
                 .foregroundStyle(Color("LexiconText"))
                 .lineSpacing(5)
-                .padding(.top, 4)
 
             if shouldShowSource(reflection.source) {
                 Rectangle().fill(Color("AgedGold").opacity(0.4)).frame(height: 1)
