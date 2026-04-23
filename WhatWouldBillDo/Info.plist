@@ -46,6 +46,17 @@
   <string>UIStatusBarStyleDefault</string>
   <key>ITSAppUsesNonExemptEncryption</key>
   <false/>
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>com.whatwouldbilldo.app</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>wwbd</string>
+      </array>
+    </dict>
+  </array>
   <key>NSUserNotificationsUsageDescription</key>
   <string>Bill sends you a daily reflection and celebrates your milestones.</string>
   <key>NSAppTransportSecurity</key>

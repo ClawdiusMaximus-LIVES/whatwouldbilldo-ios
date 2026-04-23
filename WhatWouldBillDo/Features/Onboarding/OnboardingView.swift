@@ -8,7 +8,7 @@ struct OnboardingView: View {
     @State private var sobrietyDate: Date = Calendar.current.date(byAdding: .year, value: -1, to: Date()) ?? Date()
     @State private var sobrietyDateWasSet: Bool = false
 
-    private let totalScreens = 5
+    private let totalScreens = 6
 
     var body: some View {
         ZStack {
@@ -33,8 +33,10 @@ struct OnboardingView: View {
                                    dateWasSet: $sobrietyDateWasSet,
                                    onContinue: advance)
                         .tag(3)
-                    InvitationScreen(userName: appState.userName, onStart: completeOnboarding)
+                    FreeFeaturesScreen(onContinue: advance)
                         .tag(4)
+                    InvitationScreen(userName: appState.userName, onStart: completeOnboarding)
+                        .tag(5)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.3), value: currentIndex)
@@ -469,7 +471,107 @@ private struct SobrietyScreen: View {
     }
 }
 
-// MARK: Screen 5 — Invitation
+// MARK: Screen 5 — Free Features
+
+private struct FreeFeaturesScreen: View {
+    let onContinue: () -> Void
+
+    var body: some View {
+        GeometryReader { proxy in
+            ScrollView {
+                VStack(spacing: 18) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Yours, every day.")
+                            .font(.system(size: 28, weight: .bold, design: .serif))
+                            .foregroundStyle(Color("LexiconText"))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("Two things you get for free, no subscription. Every single day.")
+                            .font(.system(size: 15, design: .serif))
+                            .italic()
+                            .foregroundStyle(Color("SaddleBrown"))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+
+                    // Daily reflection preview
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 6) {
+                            Text("🕯️").font(.system(size: 12))
+                            Text("TODAY'S PASSAGE")
+                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                .tracking(1.4)
+                                .foregroundStyle(Color("AmberAccent"))
+                        }
+                        Text("We are neither cocky nor are we afraid. That is our experience. That is how we react so long as we keep in fit spiritual condition.")
+                            .font(.system(size: 14, design: .serif))
+                            .italic()
+                            .foregroundStyle(Color("LexiconText"))
+                            .lineSpacing(3)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Rectangle().fill(Color("AgedGold").opacity(0.4)).frame(height: 1)
+                        Text("BILL'S REFLECTION")
+                            .font(.system(size: 9, weight: .bold, design: .monospaced))
+                            .tracking(1.4)
+                            .foregroundStyle(Color("AmberAccent"))
+                        Text("Today isn't won or lost all at once — it's won right now, in the next honest choice.")
+                            .font(.system(size: 13, design: .serif))
+                            .foregroundStyle(Color("LexiconText"))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 18).fill(Color("CardWhite")))
+                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color("AgedGold").opacity(0.35), lineWidth: 1))
+                    .shadow(color: .brown.opacity(0.08), radius: 6, y: 2)
+                    .padding(.horizontal, 16)
+
+                    HStack(alignment: .top, spacing: 14) {
+                        Image("widget-parchment-medium")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 120)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("ON YOUR HOME SCREEN")
+                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .tracking(1.3)
+                                .foregroundStyle(Color("AmberAccent"))
+                            Text("A parchment widget. Keep Bill's words with you. One tap opens today's passage.")
+                                .font(.system(size: 13, design: .serif))
+                                .foregroundStyle(Color("LexiconText"))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 20)
+
+                    Spacer(minLength: 8)
+                }
+                .frame(minHeight: proxy.size.height - 80)
+            }
+
+            VStack {
+                Spacer()
+                Button(action: onContinue) {
+                    Text("Continue")
+                        .font(.system(.headline, design: .serif))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color("AmberAccent"))
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 14)
+            }
+        }
+    }
+}
+
+// MARK: Screen 6 — Invitation
 
 private struct InvitationScreen: View {
     let userName: String

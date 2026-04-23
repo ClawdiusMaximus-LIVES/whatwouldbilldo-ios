@@ -16,6 +16,12 @@ struct WhatWouldBillDoApp: App {
             ContentView()
                 .environment(appState)
                 .preferredColorScheme(.light)
+                .onOpenURL { url in
+                    // wwbd://reflection from the home-screen widget → jump to Reflection tab.
+                    if url.host == "reflection" {
+                        appState.selectedTab = 1
+                    }
+                }
         }
         .modelContainer(for: [Conversation.self, Message.self])
         .onChange(of: scenePhase) { _, newPhase in

@@ -87,6 +87,7 @@ private struct SmallWidgetView: View {
         .containerBackground(for: .widget) {
             WidgetParchmentBackground(imageName: "widget-parchment-small")
         }
+        .widgetURL(URL(string: "wwbd://reflection"))
     }
 }
 
@@ -125,6 +126,7 @@ private struct MediumWidgetView: View {
         .containerBackground(for: .widget) {
             WidgetParchmentBackground(imageName: "widget-parchment-medium")
         }
+        .widgetURL(URL(string: "wwbd://reflection"))
     }
 }
 
