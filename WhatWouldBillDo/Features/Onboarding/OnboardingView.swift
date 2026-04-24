@@ -526,7 +526,7 @@ private struct FreeFeaturesScreen: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 24)
 
-                    Text("Add the widget — one tap pulls up Bill's reflection on the day.")
+                    Text("Add the home-screen widget for today's passage — one tap opens Bill's reflection on it.")
                         .font(.system(size: 13, design: .serif))
                         .italic()
                         .foregroundStyle(Color("SaddleBrown"))
