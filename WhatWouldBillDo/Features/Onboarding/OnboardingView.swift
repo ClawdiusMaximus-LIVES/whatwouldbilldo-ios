@@ -526,20 +526,13 @@ private struct FreeFeaturesScreen: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 24)
 
-                    // Just shows that there's a widget — image speaks for itself.
-                    HStack(alignment: .center, spacing: 14) {
-                        Image("widget-parchment-medium")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 130)
-                        Text("On your home screen.")
-                            .font(.system(size: 14, design: .serif))
-                            .italic()
-                            .foregroundStyle(Color("SaddleBrown"))
-                            .fixedSize(horizontal: false, vertical: true)
-                        Spacer(minLength: 0)
-                    }
-                    .padding(.horizontal, 20)
+                    Text("Add the widget — one tap pulls up Bill's reflection on the day.")
+                        .font(.system(size: 13, design: .serif))
+                        .italic()
+                        .foregroundStyle(Color("SaddleBrown"))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 28)
 
                     // Reflection example — shows what Bill's morning reflection looks like.
                     VStack(alignment: .leading, spacing: 8) {
