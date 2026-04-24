@@ -20,7 +20,7 @@ struct Provider: TimelineProvider {
         ReflectionEntry(
             date: Date(),
             passage: "Ask Bill anything. He's been through it all.",
-            source: "Alcoholics Anonymous",
+            source: "Big Book · 1939",
             reflection: ""
         )
     }

@@ -66,7 +66,7 @@ struct BillMessageView: View {
         message: DisplayMessage(
             role: "bill",
             content: "I hear what you're saying. And I know that feeling — the idea that one drink might take the edge off what's eating at you. I've been there. For men and women like us, that thought is the beginning of a very bad road.",
-            citations: [Citation(source: "Alcoholics Anonymous (1939)",
+            citations: [Citation(source: "Big Book (1939)",
                                  chapter: "Chapter 6: Into Action", title: nil, similarity: 0.9)]
         ),
         revealCount: nil

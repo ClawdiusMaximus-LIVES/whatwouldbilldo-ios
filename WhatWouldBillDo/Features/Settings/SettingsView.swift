@@ -178,7 +178,7 @@ struct SettingsView: View {
                 .font(.system(.title3, design: .serif, weight: .bold))
                 .foregroundStyle(Color("LexiconText"))
 
-            Text("1895 — 1971 · CO-FOUNDER, ALCOHOLICS ANONYMOUS")
+            Text("1895 — 1971 · RECOVERY PIONEER")
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .tracking(1.2)
                 .foregroundStyle(Color("AmberAccent"))
@@ -450,9 +450,9 @@ private struct LinkRow: View {
 private struct SourceTextsSheet: View {
     @Environment(\.dismiss) private var dismiss
     private let sources: [(title: String, description: String)] = [
-        ("Alcoholics Anonymous (1939)", "The original Big Book — first edition."),
+        ("The Big Book (1939)", "First-edition recovery handbook, public domain."),
         ("Original Manuscript (1938)", "Pre-publication multilith manuscript."),
-        ("AA Grapevine articles (early)", "Bill's early essays in the AA magazine."),
+        ("Grapevine articles (early)", "Bill's early fellowship-magazine essays."),
         ("Personal letters", "Correspondence available in the public domain."),
         ("Talk transcripts", "Public-domain speeches and talks.")
     ]

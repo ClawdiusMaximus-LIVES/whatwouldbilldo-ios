@@ -496,84 +496,50 @@ private struct FreeFeaturesScreen: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
 
-                    // Daily reflection — static scroll banner with the iconic quote
-                    // fading in. Pure SwiftUI; the prior WKWebView path rendered
-                    // opaque-black on iOS 17+ no matter what we tried.
-                    VStack(spacing: 8) {
-                        ZStack {
-                            Image("scroll-banner")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
+                    // Big scroll with the Bill W. quote — the hero of this screen.
+                    ZStack {
+                        Image("scroll-banner")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
 
-                            VStack(spacing: 8) {
-                                Text("\u{201C}Keep coming back.\nOne day at a time.\u{201D}")
-                                    .font(.system(.title3, design: .serif))
-                                    .italic()
-                                    .foregroundStyle(Color("LexiconText"))
-                                    .multilineTextAlignment(.center)
-                                    .lineSpacing(2)
-                                Text("— BILL W., ALCOHOLICS ANONYMOUS (1939)")
-                                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                                    .tracking(1.2)
-                                    .foregroundStyle(Color("SaddleBrown"))
-                            }
-                            .padding(.horizontal, 60)
+                        VStack(spacing: 6) {
+                            Text("\u{201C}Keep coming back.\nOne day at a time.\u{201D}")
+                                .font(.system(.title3, design: .serif))
+                                .italic()
+                                .foregroundStyle(Color("LexiconText"))
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(2)
+                            Text("— BILL W. · 1939")
+                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                .tracking(1.4)
+                                .foregroundStyle(Color("SaddleBrown"))
                         }
-                        Text("A new passage each morning — with Bill's reflection on it.")
-                            .font(.system(size: 13, design: .serif))
-                            .italic()
-                            .foregroundStyle(Color("SaddleBrown"))
-                            .multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 64)
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 12)
 
-                    HStack(alignment: .top, spacing: 14) {
+                    Text("A new passage each morning — with Bill's reflection on it.")
+                        .font(.system(size: 13, design: .serif))
+                        .italic()
+                        .foregroundStyle(Color("SaddleBrown"))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 24)
+
+                    // Just shows that there's a widget — image speaks for itself.
+                    HStack(alignment: .center, spacing: 14) {
                         Image("widget-parchment-medium")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 120)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("ON YOUR HOME SCREEN")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
-                                .tracking(1.3)
-                                .foregroundStyle(Color("AmberAccent"))
-                            Text("A parchment widget. Keep Bill's words with you. One tap opens today's passage.")
-                                .font(.system(size: 13, design: .serif))
-                                .foregroundStyle(Color("LexiconText"))
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
+                            .frame(width: 130)
+                        Text("On your home screen.")
+                            .font(.system(size: 14, design: .serif))
+                            .italic()
+                            .foregroundStyle(Color("SaddleBrown"))
+                            .fixedSize(horizontal: false, vertical: true)
                         Spacer(minLength: 0)
                     }
                     .padding(.horizontal, 20)
-
-                    // Reflection example — shows what Bill's morning reflection looks like.
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("BILL'S REFLECTION")
-                            .font(.system(size: 9, weight: .bold, design: .monospaced))
-                            .tracking(1.3)
-                            .foregroundStyle(Color("AmberAccent"))
-
-                        HStack(alignment: .top, spacing: 0) {
-                            Rectangle()
-                                .fill(Color("AmberAccent"))
-                                .frame(width: 3)
-                                .clipShape(RoundedRectangle(cornerRadius: 2))
-
-                            Text("Today isn't won or lost all at once — it's won right now, in the next honest choice. What am I willing to believe, just for today?")
-                                .font(.system(size: 13, design: .serif))
-                                .foregroundStyle(Color("LexiconText"))
-                                .lineSpacing(4)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .padding(.leading, 12)
-                                .padding(.vertical, 4)
-                        }
-                    }
-                    .padding(14)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(Color("CardWhite")))
-                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color("AgedGold").opacity(0.3), lineWidth: 1))
-                    .padding(.horizontal, 16)
 
                     Spacer(minLength: 8)
                 }
